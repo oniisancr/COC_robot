@@ -59,8 +59,8 @@ class CvTool:
 
 if __name__ == "__main__":
     cmp = CvTool()
-    image_path = './images/btn/close_window.png'
-    res = cmp.locateAllOnScreen(image_path, confidence=0.95, grayscale=False)
+    image_path = './images/troops/2_1.png'
+    res = cmp.locateAllOnScreen(image_path, confidence=0.935, grayscale=False)
     if cmp.isMatch():
         cmp.showRectangle()
         # cmp.clickOne()

@@ -33,12 +33,12 @@ class GameController:
     def take_screenshot(self):
         self.screenshot = cv2.cvtColor(np.array(pyautogui.screenshot()), cv2.COLOR_RGB2BGR)
     
-    def _match_template(self, search_images):
+    def _match_template(self, search_images, confidence = 0.95):
         self.take_screenshot()
         self.match_list.clear()
         for template_name in search_images:
             res = cv2.matchTemplate(self.screenshot, self.template_images[template_name], cv2.TM_CCORR_NORMED)
-            threshold = 0.95
+            threshold = confidence
             loc = np.where(res >= threshold)
             if len(loc[0]) > 0:
                 self.match_list[template_name] = loc
