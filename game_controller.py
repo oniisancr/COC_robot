@@ -36,7 +36,7 @@ class GameController:
         else:
             self.screenshot = cv2.cvtColor(np.array(pyautogui.screenshot()),cv2.COLOR_RGB2BGR)
     
-    def _match_template(self, search_images, confidence = 0.95, grayscale=True):
+    def _match_template(self, search_images, confidence = 0.935, grayscale=True):
         self.take_screenshot(grayscale)
         self.match_list.clear()
         for template_name in search_images:
@@ -44,10 +44,10 @@ class GameController:
             if grayscale:
                 template_image = cv2.cvtColor(self.template_images[template_name], cv2.COLOR_BGR2GRAY)                
             res = cv2.matchTemplate(self.screenshot, template_image, cv2.TM_CCORR_NORMED)
-            threshold = confidence
-            loc = np.where(res >= threshold)
-            if len(loc[0]) > 0:
-                self.match_list[template_name] = loc
+            # 找到最佳匹配位置
+            min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
+            if max_val > confidence:
+                self.match_list[template_name] = max_loc
     
     def gain_base(self):
         print("收资源")
@@ -79,10 +79,9 @@ class GameController:
                     break
                 op_set.remove(op_cover[0])
             time.sleep(1)
-    
 
     def clickOne(self, template_name):
-        center_x = self.match_list[template_name][1][0] + self.template_images[template_name].shape[1] // 2
-        center_y = self.match_list[template_name][0][0] + self.template_images[template_name].shape[0] // 2
+        center_x = self.match_list[template_name][0] + self.template_images[template_name].shape[1] // 2
+        center_y = self.match_list[template_name][1] + self.template_images[template_name].shape[0] // 2
         time.sleep(random.randint(1, 3)+random.random())
         pyautogui.click(center_x+random.randint(-10,10), center_y+random.randint(-10,10))  # 模拟鼠标点击匹配到的目标位置

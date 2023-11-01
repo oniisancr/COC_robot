@@ -10,7 +10,7 @@ import os
 
 folder_path = './images/troops'
 
-resize_percent = 0.68
+resize_percent = 0.665
 
 files = os.listdir(folder_path)
 
