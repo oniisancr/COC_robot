@@ -30,14 +30,20 @@ class GameController:
         # 保存所有匹配的元素
         self.match_list = { }   
 
-    def take_screenshot(self):
-        self.screenshot = cv2.cvtColor(np.array(pyautogui.screenshot()), cv2.COLOR_RGB2BGR)
+    def take_screenshot(self, grayscale=True):
+        if grayscale:
+            self.screenshot = cv2.cvtColor(np.array(pyautogui.screenshot()), cv2.COLOR_RGB2GRAY)
+        else:
+            self.screenshot = cv2.cvtColor(np.array(pyautogui.screenshot()),cv2.COLOR_RGB2BGR)
     
-    def _match_template(self, search_images, confidence = 0.95):
-        self.take_screenshot()
+    def _match_template(self, search_images, confidence = 0.95, grayscale=True):
+        self.take_screenshot(grayscale)
         self.match_list.clear()
         for template_name in search_images:
-            res = cv2.matchTemplate(self.screenshot, self.template_images[template_name], cv2.TM_CCORR_NORMED)
+            template_image = self.template_images[template_name]
+            if grayscale:
+                template_image = cv2.cvtColor(self.template_images[template_name], cv2.COLOR_BGR2GRAY)                
+            res = cv2.matchTemplate(self.screenshot, template_image, cv2.TM_CCORR_NORMED)
             threshold = confidence
             loc = np.where(res >= threshold)
             if len(loc[0]) > 0:
