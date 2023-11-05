@@ -21,7 +21,7 @@ class CvTool:
         if not cls._instance:
             cls._instance = super(CvTool, cls).__new__(cls)
         return cls._instance
-    def locateAllOnScreen(self, image, confidence=0.9, grayscale=False):
+    def locateAllOnScreen(self, image, confidence=0.8, grayscale=False):
         self.screenshot = pyautogui.screenshot()
         self.image = image
         if grayscale:
@@ -30,6 +30,9 @@ class CvTool:
         else:
             self.screenshot = cv2.cvtColor(np.array(self.screenshot), cv2.COLOR_RGB2BGR)
             self.template = cv2.imread(image)
+        self.template = cv2.Canny(self.template, 120 , 250)
+        self.screenshot = cv2.Canny(self.screenshot, 120 , 250)
+
         # 模板匹配
         res = cv2.matchTemplate(self.screenshot, self.template, cv2.TM_CCORR_NORMED)
         # 找到最佳匹配位置
@@ -42,10 +45,10 @@ class CvTool:
         if len(self.loc) > 0:
             # 标记匹配的位置
             bottom_right = (self.loc[0] + self.template.shape[1], self.loc[1] + self.template.shape[0])
-            cv2.rectangle(self.screenshot, self.loc, bottom_right, (0, 255, 0), 2)
+            cv2.rectangle(self.screenshot, self.loc, bottom_right, (255, 0, 0), 2)
             # 显示带有标记的屏幕截图
             cv2.imshow('Marked Targets', self.screenshot)
-            cv2.waitKey(2000)  # 显示 2 秒（单位为毫秒）
+            cv2.waitKey(0)  # 显示
             cv2.destroyAllWindows()
     def isMatch(self):
         return len(self.loc) > 0
@@ -62,8 +65,8 @@ class CvTool:
 
 if __name__ == "__main__":
     cmp = CvTool()
-    image_path = './images/troops_small/9_1.png'
-    res = cmp.locateAllOnScreen(image_path, confidence=0.93, grayscale=True)
+    image_path = './images/troops_small/1_1.png'
+    res = cmp.locateAllOnScreen(image_path, confidence=0.3, grayscale=True)
     if cmp.isMatch():
         cmp.showRectangle()
         # cmp.clickOne()

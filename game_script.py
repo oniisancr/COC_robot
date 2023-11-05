@@ -42,6 +42,11 @@ class GameScript:
             print('友谊战')
             self.game_controller.yyzhan()
         
+        if config.donate_troops:
+            print('捐兵')
+            self.game_controller.donate_troops()
+            print('捐兵结束')
+        
 
 if __name__ == "__main__":
     game_script = GameScript()
@@ -63,4 +68,4 @@ if __name__ == "__main__":
             time.sleep(1)
             # if False:
             #     game_script.finish()
-            # time.sleep(1)
+        time.sleep(5)
