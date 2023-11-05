@@ -8,31 +8,10 @@ import os
 import random
 import time
 import cv2
-import numpy as np
-import subprocess
 import heapq
+from adb import adb_swape, adb_take_screenshot, adb_tap
 
 from config import CLICK_LOG
-
-# 使用adb控制设备
-def adb_command_full(command, adb_path = 'D:/platform-tools/adb.exe'):
-    return adb_path + ' ' +command
-
-def adb_take_screenshot():
-    # 执行ADB命令截取屏幕并将输出保存到变量中
-    adb_process = subprocess.Popen(adb_command_full("exec-out screencap -p"), shell=True, stdout=subprocess.PIPE)
-    screenshot_bytes = adb_process.stdout.read()
-    # 将二进制图像数据读取为NumPy数组
-    screenshot_np = np.frombuffer(screenshot_bytes, np.uint8)
-    # 使用OpenCV解码图像数据
-    screenshot_cv = cv2.imdecode(screenshot_np, cv2.COLOR_RGB2BGR)
-    return screenshot_cv
-def adb_tap(x, y):
-    adb_command = adb_command_full( f"shell input tap {x} {y}")
-    subprocess.run(adb_command, shell=True)
-def adb_swape(x1, x2, y1, y2):
-    adb_command = adb_command_full( f"shell input swipe {x1} {x2} {y1} {y2}")
-    subprocess.run(adb_command, shell=True)
 
 class GameController:
     light_screenshot = None
@@ -61,10 +40,10 @@ class GameController:
         # 保存所有匹配的元素
         self.match_list = { }
         
-        input_string = "17,18,1,2,2,1"
-        elements = input_string.split(',')
-        for element in elements:
-            heapq.heappush(self.heap_tarin_troops, int(element))
+        # input_string = "17,18,1,2,2,1"
+        # elements = input_string.split(',')
+        # for element in elements:
+        #     heapq.heappush(self.heap_tarin_troops, int(element))
 
     def take_screenshot(self, grayscale=True):
         self.screenshot = adb_take_screenshot()
@@ -76,6 +55,8 @@ class GameController:
     def _match_template(self, search_images, confidence = 0.95, grayscale=True):
         self.take_screenshot(grayscale)
         self.match_list.clear()
+        #是否至少存在一个匹配对象
+        flag = False
         for template_name in search_images:
             template_image = self.template_images[template_name]
             if grayscale:
@@ -85,8 +66,10 @@ class GameController:
             min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
             if max_val > confidence:
                 self.match_list[template_name] = max_loc
+                flag = True
                 if template_name in self.btn_map:
                     self.btn_map[template_name] = max_loc
+        return flag
     
     def gain_base(self):
         print("收资源")
