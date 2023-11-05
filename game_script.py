@@ -46,6 +46,7 @@ class GameScript:
             print('捐兵')
             self.game_controller.donate_troops()
             print('捐兵结束')
+        self.game_controller.train()
         
 
 if __name__ == "__main__":
@@ -54,6 +55,9 @@ if __name__ == "__main__":
         if game_script.state == 'initializing':
             time.sleep(1)
             # 启动游戏
+            # 关闭活动界面
+            # 关闭月度大活动结算
+            # 正在被攻击
             game_script.start_waiting()
         elif game_script.state == 'waiting':
             if game_script.waitting_time <= 0:

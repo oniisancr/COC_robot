@@ -9,8 +9,8 @@ import random
 import time
 import cv2
 import numpy as np
-import pyautogui
 import subprocess
+import heapq
 
 from config import CLICK_LOG
 
@@ -30,12 +30,17 @@ def adb_take_screenshot():
 def adb_tap(x, y):
     adb_command = adb_command_full( f"shell input tap {x} {y}")
     subprocess.run(adb_command, shell=True)
+def adb_swape(x1, x2, y1, y2):
+    adb_command = adb_command_full( f"shell input swipe {x1} {x2} {y1} {y2}")
+    subprocess.run(adb_command, shell=True)
 
 class GameController:
     light_screenshot = None
     gray_screenshot = None
     troop_name = []
     troop_small_name = []
+    heap_tarin_troops = []      #训练任务
+
     def __init__(self):
         self.template_images = {}
         # 用于保存所有按钮位置，不再重新匹配
@@ -55,6 +60,11 @@ class GameController:
                     self.troop_small_name.append(name)
         # 保存所有匹配的元素
         self.match_list = { }
+        
+        input_string = "17,18,1,2,2,1"
+        elements = input_string.split(',')
+        for element in elements:
+            heapq.heappush(self.heap_tarin_troops, int(element))
 
     def take_screenshot(self, grayscale=True):
         self.screenshot = adb_take_screenshot()
@@ -124,6 +134,9 @@ class GameController:
                     light_items = self.get_light_items(self.troop_small_name)
                     if len(light_items) > 0:
                         self.click(list(light_items.values())[0])
+                        heapq.heappush(self.heap_tarin_troops, int((list(light_items.keys())[0]).split('_')[0]))
+                        if CLICK_LOG:
+                            print("捐兵：" + (list(light_items.keys())[0]).split('_')[0])
                     else:
                         self.click_by_name("close_donate_window")
                         break
@@ -131,12 +144,32 @@ class GameController:
         time.sleep(1)
         self.click_by_name("close")
 
+    def train(self):
+        # 训练对应的捐兵
+        if len(self.heap_tarin_troops) > 0:
+            self.click_by_name("train")
+            self.click_by_name("train_troops")
+            while len(self.heap_tarin_troops) > 0:
+                train_trops_id = str(heapq.heappop(self.heap_tarin_troops))
+                if int(train_trops_id) > 16:
+                    # adb shell input swipe 1129 771 600 771
+                    adb_swape(1129, 771, 600, 771)
+                    time.sleep(2)
+                self._match_template([train_trops_id])
+                if len(self.match_list) > 0:
+                    self.click_by_name(list(self.match_list.keys())[0])
+                    if CLICK_LOG:
+                        print("训练 " + list(self.match_list.keys())[0])
+                else:
+                    break
+            self.click_by_name("close_window_train")
+
     def get_light_items(self, search_images):
         light_items = {}
         self._match_template(search_images)
 
         for key, value in self.match_list.items():
-            b, g, r = self.light_screenshot[value[1]+10, value[0]+10] #往右下角偏移一点
+            b, g, r = self.light_screenshot[value[1]+30, value[0]+30] #往右下角偏移一点
 
             # 检查颜色是否为灰色
             if b == g and g == r:
@@ -150,19 +183,26 @@ class GameController:
             return False
         center_x = loc[0]
         center_y = loc[1]
-        time.sleep(random.randint(0, 2)+random.random())
+        time.sleep(random.randint(0, 1)+random.random())
         adb_tap(center_x+random.randint(0,10), center_y+random.randint(0,10)) # 模拟鼠标点击匹配到的目标位置
+        time.sleep(random.randint(1, 2)+random.random())
         return True
 
     def click_by_name(self, template_name):
         if CLICK_LOG:
             print("点击 "+template_name)
-        
-        if self.click(self.btn_map[template_name]):
-            return True
+        if template_name in self.btn_map:
+            if self.click(self.btn_map[template_name]):
+                return True
+            else:
+                self._match_template([template_name])
+                return self.click(self.btn_map[template_name])
         else:
             self._match_template([template_name])
-            return self.click(self.btn_map[template_name])
+            if len(self.match_list) > 0:
+                return self.click(list(self.match_list.values())[0])
+            else:
+                return False
     
     def show_rectangle(self):
         for key, value in self.match_list.items():
