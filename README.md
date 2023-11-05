@@ -1,5 +1,5 @@
-# COC_robot
-
+# COC_robot 
+Supercell Clash of Clans Auto Robot； 部落冲突自动化脚本；
 - 功能：
     1. 自动收集资源
     2. 自动捐兵
