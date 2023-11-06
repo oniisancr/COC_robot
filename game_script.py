@@ -25,10 +25,12 @@ class GameScript:
         self.machine = Machine(model=self, states=GameScript.states, initial='initializing')
         self.game_controller = GameController()
 
-        self.machine.add_transition('start_waiting', 'initializing', 'waiting')
+        self.machine.add_transition('initializing2waiting', 'initializing', 'waiting')
+        self.machine.add_transition("waiting2initializing", 'waiting', 'initializing')
         self.machine.add_transition('start_processing', 'waiting', 'processing')
         self.machine.add_transition('finish', 'processing', 'finishing')
         self.machine.add_transition('start_init', 'waiting', 'initializing')
+        self.machine.add_transition('processing2waiting','processing','waiting')
 
       
     def init(self):
@@ -41,7 +43,7 @@ class GameScript:
         self.game_controller.click_by_name("confirm")
         # 转到等待状态
         self.waitting_time = 10
-        self.start_waiting()
+        self.initializing2waiting()
 
     def execute_game_action(self):
 
@@ -72,13 +74,12 @@ if __name__ == "__main__":
             adb_command("shell am start -n com.tencent.tmgp.supercell.clashofclans/com.supercell.titan.tencent.GameAppTencent")
             time.sleep(10)
             game_script.init()
-            # game_script.start_waiting()
         elif game_script.state == 'waiting':
             if wait_wakeup_timer > 0:
                 time.sleep(10)
                 wait_wakeup_timer -= 10
                 if wait_wakeup_timer == 0:
-                    game_script.start_init()
+                    game_script.waiting2initializing()
                 continue
             # 被攻击中
             if game_script.game_controller._match_template(["onatttacked"]):
@@ -109,6 +110,6 @@ if __name__ == "__main__":
                     adb_command("shell am force-stop com.tencent.tmgp.supercell.clashofclans")
                     wait_wakeup_timer = config.WAKEUP_TIME
                     offline_timer = config.MAX_ONLINE_TIME
-                    game_script.start_waiting()
+                    game_script.processing2waiting()
             game_script.execute_game_action()
             #game_script.finish()
