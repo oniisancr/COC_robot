@@ -81,10 +81,17 @@ if __name__ == "__main__":
                 if wait_wakeup_timer == 0:
                     game_script.waiting2initializing()
                 continue
+            # 系统维护 等待5分钟重试
+            if game_script.game_controller._match_template(["reload_maintenance"]):
+                wait_wakeup_timer = 300
+                adb_command("shell input keyevent 3")
+                continue
             # 被攻击中
             if game_script.game_controller._match_template(["onatttacked"]):
                 time.sleep(1)
                 continue
+            # 突袭奖励
+            game_script.game_controller.click_by_name("close_tuxi_window")
             # 回营
             game_script.game_controller.click_by_name("back_home")
             # 长时间未操作
