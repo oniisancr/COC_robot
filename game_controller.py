@@ -9,6 +9,7 @@ import random
 import time
 import cv2
 import heapq
+import logging
 from adb import adb_swape, adb_take_screenshot, adb_tap
 
 from config import CLICK_LOG
@@ -72,7 +73,6 @@ class GameController:
         return flag
     
     def gain_base(self):
-        print("收资源")
         # 任一 
         op_list = ["oil","gold","water"]
         
@@ -119,13 +119,15 @@ class GameController:
                         self.click(list(light_items.values())[0])
                         heapq.heappush(self.heap_tarin_troops, int((list(light_items.keys())[0]).split('_')[0]))
                         if CLICK_LOG:
-                            print("捐兵：" + (list(light_items.keys())[0]).split('_')[0])
+                            logging.info("donate " + (list(light_items.keys())[0]).split('_')[0])
                     else:
                         self.click_by_name("close_donate_window")
                         break
             time.sleep(1)
         time.sleep(1)
         self.click_by_name("close")
+        if CLICK_LOG and len(self.heap_tarin_troops) > 0:
+            logging.info('donated %d troops',len(self.heap_tarin_troops))
 
     def train(self):
         # 训练对应的捐兵
@@ -142,7 +144,7 @@ class GameController:
                 if len(self.match_list) > 0:
                     self.click_by_name(list(self.match_list.keys())[0])
                     if CLICK_LOG:
-                        print("训练 " + list(self.match_list.keys())[0])
+                        logging.info("train " + list(self.match_list.keys())[0])
                 else:
                     break
             self.click_by_name("close_window_train")
@@ -173,7 +175,7 @@ class GameController:
 
     def click_by_name(self, template_name):
         if CLICK_LOG:
-            print("点击 "+template_name)
+            logging.info("click "+template_name)
         if template_name in self.btn_map:
             if self.click(self.btn_map[template_name]):
                 return True

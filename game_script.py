@@ -9,6 +9,9 @@ from adb import adb_command
 from game_controller import GameController
 import time
 import config
+import logging
+# 配置日志记录到文件
+logging.basicConfig(filename='coc_robot.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s',filemode='w')
 
 offline_timer = 0
 wait_wakeup_timer = 0
@@ -49,15 +52,19 @@ class GameScript:
 
         if int(time.time()) - self.last_gain > config.gain_interval:
             self.last_gain = int(time.time())
+            if config.CLICK_LOG:
+                logging.info("gain_base")
             self.game_controller.gain_base()
 
         if config.yyzhan and int(time.time()) - self.last_yyz > config.yyzhan_Interval: #控制频率
             self.last_yyz = int(time.time())
-            print('友谊战')
+            if config.CLICK_LOG:
+                logging.info('start yyzhan')
             self.game_controller.yyzhan()
         
         if config.donate_troops and int(time.time()) - self.last_donate > config.donate_Interval:
-            print('捐兵')
+            if config.CLICK_LOG:
+                logging.info('start donate_troops')
             self.game_controller.donate_troops()
             self.last_donate = time.time()
         self.game_controller.train()
@@ -84,7 +91,8 @@ if __name__ == "__main__":
             # 系统维护 等待5分钟重试
             if game_script.game_controller._match_template(["reload_maintenance"]):
                 wait_wakeup_timer = 300
-                adb_command("shell input keyevent 3")
+                # 退出
+                adb_command("shell am force-stop com.tencent.tmgp.supercell.clashofclans")
                 continue
             # 被攻击中
             if game_script.game_controller._match_template(["onatttacked"]):
