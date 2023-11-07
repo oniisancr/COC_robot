@@ -39,14 +39,12 @@ class GameScript:
     def init(self):
         global offline_timer
         offline_timer = config.MAX_ONLINE_TIME
-        
-        # 关闭活动界面
-        self.game_controller.click_by_name("close_window")
-        # 关闭月度大活动结算、升级完成
-        self.game_controller.click_by_name("confirm")
+
         # 转到等待状态
-        self.waitting_time = 10
+        self.waitting_time = 5
         self.initializing2waiting()
+        if config.CLICK_LOG:
+            logging.debug('initializing2waiting')
 
     def execute_game_action(self):
 
@@ -87,6 +85,8 @@ if __name__ == "__main__":
                 wait_wakeup_timer -= 10
                 if wait_wakeup_timer == 0:
                     game_script.waiting2initializing()
+                    if config.CLICK_LOG:
+                        logging.debug('waiting2initializing')
                 continue
             # 系统维护 等待5分钟重试
             if game_script.game_controller._match_template(["reload_maintenance"]):
@@ -94,24 +94,34 @@ if __name__ == "__main__":
                 # 退出
                 adb_command("shell am force-stop com.tencent.tmgp.supercell.clashofclans")
                 continue
+            # 更新错误
+            if game_script.game_controller._match_template(["update_error"]):
+                game_script.game_controller.click_by_name("exit") #退出
+                wait_wakeup_timer = 10
+                continue
             # 被攻击中
             if game_script.game_controller._match_template(["onatttacked"]):
                 time.sleep(1)
                 continue
+            # 被攻击中-->回营
+            game_script.game_controller.click_by_name("back_home")
+            # 关闭活动界面
+            game_script.game_controller.click_by_name("close_window")
+            # 关闭月度大活动结算、升级完成
+            game_script.game_controller.click_by_name("confirm")
             # 突袭奖励
             game_script.game_controller.click_by_name("close_tuxi_window")
-            # 回营
-            game_script.game_controller.click_by_name("back_home")
             # 长时间未操作
             game_script.game_controller.click_by_name("reload")
-            # 是否进入主界面
+            # 是否已经进入主界面
             if not game_script.game_controller._match_template(["add"]):
                 time.sleep(1)
                 continue
             
             if game_script.waitting_time <= 0:
-                game_script.waitting_time = 10
                 game_script.start_processing()
+                if config.CLICK_LOG:
+                        logging.debug('start_processing')
             else:
                 game_script.waitting_time -= 5
                 time.sleep(5)
@@ -126,5 +136,7 @@ if __name__ == "__main__":
                     wait_wakeup_timer = config.WAKEUP_TIME
                     offline_timer = config.MAX_ONLINE_TIME
                     game_script.processing2waiting()
+                    if config.CLICK_LOG:
+                        logging.debug('processing2waiting')
             game_script.execute_game_action()
             #game_script.finish()
