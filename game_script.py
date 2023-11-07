@@ -43,8 +43,6 @@ class GameScript:
         # 转到等待状态
         self.waitting_time = 5
         self.initializing2waiting()
-        if config.CLICK_LOG:
-            logging.debug('initializing2waiting')
 
     def execute_game_action(self):
 
@@ -85,8 +83,6 @@ if __name__ == "__main__":
                 wait_wakeup_timer -= 10
                 if wait_wakeup_timer == 0:
                     game_script.waiting2initializing()
-                    if config.CLICK_LOG:
-                        logging.debug('waiting2initializing')
                 continue
             # 系统维护 等待5分钟重试
             if game_script.game_controller._match_template(["reload_maintenance"]):
@@ -120,8 +116,6 @@ if __name__ == "__main__":
             
             if game_script.waitting_time <= 0:
                 game_script.start_processing()
-                if config.CLICK_LOG:
-                        logging.debug('start_processing')
             else:
                 game_script.waitting_time -= 5
                 time.sleep(5)
@@ -136,7 +130,5 @@ if __name__ == "__main__":
                     wait_wakeup_timer = config.WAKEUP_TIME
                     offline_timer = config.MAX_ONLINE_TIME
                     game_script.processing2waiting()
-                    if config.CLICK_LOG:
-                        logging.debug('processing2waiting')
             game_script.execute_game_action()
             #game_script.finish()
