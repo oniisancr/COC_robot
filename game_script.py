@@ -91,7 +91,7 @@ if __name__ == "__main__":
                 adb_command("shell am force-stop com.tencent.tmgp.supercell.clashofclans")
                 continue
             # 更新错误
-            if game_script.game_controller._match_template(["update_error"]):
+            if game_script.game_controller._match_template(["update_error"],confidence=0.965):
                 game_script.game_controller.click_by_name("exit") #退出
                 wait_wakeup_timer = 10
                 continue
