@@ -43,8 +43,39 @@ class GameScript:
         # 转到等待状态
         self.waitting_time = 5
         self.initializing2waiting()
-
+    
+    def keep_clear_home(self):
+        '''
+        关闭主界面其余窗口，避免因误触界面其他按钮导致脚本暂停
+        '''
+        # 只使用一张截图判断
+        game_script.game_controller.take_screenshot(False)
+        game_script.game_controller.shot_new = False
+        
+        # 关闭大窗口window  -（误触add、商店、布局、）
+        if game_script.game_controller.click_by_name("close_window"):
+            return
+        # 关闭中窗口window  -（误触邮件、进攻、设置）
+        if game_script.game_controller.click_by_name("close_medium_window"):
+            return
+        # 关闭批量升级window
+        if game_script.game_controller.click_by_name("close_update_window"):
+            return
+        # 误触建筑物
+        if game_script.game_controller._match_template(["target_info"]):
+            # 点击草坪
+            game_script.game_controller.click_by_name("grass")
+        # 关闭超级兵界面
+        if game_script.game_controller.click_by_name("close_supertroop_window"):
+            return
+        # 关闭每周精选close_weekly_window
+        if game_script.game_controller.click_by_name("close_weekly_window"):
+            return
+        
+        game_script.game_controller.shot_new = True
+    
     def execute_game_action(self):
+        self.keep_clear_home()
 
         if int(time.time()) - self.last_gain > config.gain_interval:
             self.last_gain = int(time.time())

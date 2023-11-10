@@ -45,6 +45,8 @@ class GameController:
         # elements = input_string.split(',')
         # for element in elements:
         #     heapq.heappush(self.heap_tarin_troops, int(element))
+        # 是否重新获取屏幕图像
+        self.shot_new = True
 
     def take_screenshot(self, grayscale=True):
         self.screenshot = adb_take_screenshot()
@@ -54,7 +56,8 @@ class GameController:
             self.gray_screenshot = self.screenshot
     
     def _match_template(self, search_images, confidence = 0.95, grayscale=True):
-        self.take_screenshot(grayscale)
+        if self.shot_new:
+            self.take_screenshot(grayscale)
         self.match_list.clear()
         #是否至少存在一个匹配对象
         flag = False
