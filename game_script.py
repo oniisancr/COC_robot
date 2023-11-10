@@ -62,9 +62,9 @@ class GameScript:
         if game_script.game_controller.click_by_name("close_update_window", False):
             return
         # 误触建筑物
-        if game_script.game_controller._match_template(["target_info"], False):
+        if game_script.game_controller._match_template(["target_info"]):
             # 点击草坪
-            game_script.game_controller.click_by_name("grass")
+            game_script.game_controller.click_by_name("grass",False)
         # 关闭超级兵界面
         if game_script.game_controller.click_by_name("close_supertroop_window", False):
             return
