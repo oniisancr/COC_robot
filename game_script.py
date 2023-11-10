@@ -53,23 +53,23 @@ class GameScript:
         game_script.game_controller.shot_new = False
         
         # 关闭大窗口window  -（误触add、商店、布局、）
-        if game_script.game_controller.click_by_name("close_window"):
+        if game_script.game_controller.click_by_name("close_window", False):
             return
         # 关闭中窗口window  -（误触邮件、进攻、设置）
-        if game_script.game_controller.click_by_name("close_medium_window"):
+        if game_script.game_controller.click_by_name("close_medium_window", False):
             return
         # 关闭批量升级window
-        if game_script.game_controller.click_by_name("close_update_window"):
+        if game_script.game_controller.click_by_name("close_update_window", False):
             return
         # 误触建筑物
-        if game_script.game_controller._match_template(["target_info"]):
+        if game_script.game_controller._match_template(["target_info"], False):
             # 点击草坪
             game_script.game_controller.click_by_name("grass")
         # 关闭超级兵界面
-        if game_script.game_controller.click_by_name("close_supertroop_window"):
+        if game_script.game_controller.click_by_name("close_supertroop_window", False):
             return
         # 关闭每周精选close_weekly_window
-        if game_script.game_controller.click_by_name("close_weekly_window"):
+        if game_script.game_controller.click_by_name("close_weekly_window", False):
             return
         
         game_script.game_controller.shot_new = True

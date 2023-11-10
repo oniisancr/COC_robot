@@ -176,10 +176,13 @@ class GameController:
         time.sleep(random.randint(1, 2)+random.random())
         return True
 
-    def click_by_name(self, template_name):
+    def click_by_name(self, template_name, use_btn_buf = True):
         if CLICK_LOG:
             logging.info("click "+template_name)
         if template_name in self.btn_map:
+            if not use_btn_buf:
+                # 不使用缓存
+                self.btn_map[template_name] = None       
             if self.click(self.btn_map[template_name]):
                 return True
             else:
