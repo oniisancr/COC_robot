@@ -49,7 +49,7 @@ class GameScript:
         关闭主界面其余窗口，避免因误触界面其他按钮导致脚本暂停
         '''
         # 只使用一张截图判断
-        game_script.game_controller.take_screenshot(False)
+        game_script.game_controller.take_screenshot(True)
         game_script.game_controller.shot_new = False
         
         # 关闭大窗口window  -（误触add、商店、布局、）
