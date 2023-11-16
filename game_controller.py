@@ -173,7 +173,6 @@ class GameController:
         center_y = loc[1]
         time.sleep(random.randint(0, 1)+random.random())
         adb_tap(center_x+random.randint(0,10), center_y+random.randint(0,10)) # 模拟鼠标点击匹配到的目标位置
-        time.sleep(random.randint(1, 2)+random.random())
         return True
 
     def click_by_name(self, template_name, use_btn_buf = True):
