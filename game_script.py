@@ -19,6 +19,7 @@ wait_wakeup_timer = 0
 class GameScript:
     states = ['initializing', 'waiting', 'processing', 'finishing']
     waitting_time = 0
+    start_task = False
     
     last_yyz = 0
     last_gain = 0
@@ -75,26 +76,36 @@ class GameScript:
         game_script.game_controller.shot_new = True
     
     def execute_game_action(self):
-        self.keep_clear_home()
 
         if int(time.time()) - self.last_gain > config.gain_interval:
+            if self.start_task is False:
+                self.keep_clear_home()
+                self.start_task = True
             self.last_gain = int(time.time())
             if config.CLICK_LOG:
                 logging.info("gain_base")
             self.game_controller.gain_base()
 
         if config.yyzhan and int(time.time()) - self.last_yyz > config.yyzhan_Interval: #控制频率
+            if self.start_task is False:
+                self.keep_clear_home()
+                self.start_task = True
             self.last_yyz = int(time.time())
             if config.CLICK_LOG:
                 logging.info('start yyzhan')
             self.game_controller.yyzhan()
         
         if config.donate_troops and int(time.time()) - self.last_donate > config.donate_Interval:
+            if self.start_task is False:
+                self.keep_clear_home()
+                self.start_task = True
             if config.CLICK_LOG:
                 logging.info('start donate_troops')
             self.game_controller.donate_troops()
             self.last_donate = time.time()
         self.game_controller.train()
+        
+        self.start_task = False
 
 if __name__ == "__main__":
     game_script = GameScript()
