@@ -136,7 +136,9 @@ class GameController:
         # 训练对应的捐兵
         if len(self.heap_tarin_troops) > 0:
             self.click_by_name("train")
-            self.click_by_name("train_troops")
+            time.sleep(1 + random.random())
+            self.click_by_name("train_troops", duration = 1)
+            time.sleep(1 + random.random())
             while len(self.heap_tarin_troops) > 0:
                 train_trops_id = str(heapq.heappop(self.heap_tarin_troops))
                 if int(train_trops_id) > 16:
@@ -166,31 +168,32 @@ class GameController:
                 light_items[key] = value
         return light_items
 
-    def click(self, loc):
+    def click(self, loc, duration=0):
         if loc is None:
             return False
         center_x = loc[0]
         center_y = loc[1]
-        time.sleep(random.randint(0, 1)+random.random())
+        time.sleep(duration)
+        time.sleep(0.65+random.random())
         adb_tap(center_x+random.randint(0,10), center_y+random.randint(0,10)) # 模拟鼠标点击匹配到的目标位置
         return True
 
-    def click_by_name(self, template_name, use_btn_buf = True):
+    def click_by_name(self, template_name, use_btn_buf = True, duration = 0):
         if CLICK_LOG:
             logging.info("click "+template_name)
         if template_name in self.btn_map:
             if not use_btn_buf:
                 # 不使用缓存
                 self.btn_map[template_name] = None       
-            if self.click(self.btn_map[template_name]):
+            if self.click(self.btn_map[template_name], duration):
                 return True
             else:
                 self._match_template([template_name])
-                return self.click(self.btn_map[template_name])
+                return self.click(self.btn_map[template_name], duration)
         else:
             self._match_template([template_name])
             if len(self.match_list) > 0:
-                return self.click(list(self.match_list.values())[0])
+                return self.click(list(self.match_list.values())[0], duration)
             else:
                 return False
     
