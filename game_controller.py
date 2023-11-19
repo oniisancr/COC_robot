@@ -76,12 +76,9 @@ class GameController:
         return flag
     
     def gain_base(self):
-        # 任一 
-        op_list = ["oil","gold","water"]
-        
-        self._match_template(op_list)
-        for template_name in op_list:
-            self.click_by_name(template_name)
+        self.click_by_name("oil")
+        self.click_by_name("gold")
+        self.click_by_name("water")
 
     def yyzhan(self):
         

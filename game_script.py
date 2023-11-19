@@ -42,7 +42,7 @@ class GameScript:
         offline_timer = config.MAX_ONLINE_TIME
 
         # 转到等待状态
-        self.waitting_time = 5
+        self.waitting_time = 0
         self.initializing2waiting()
     
     def keep_clear_home(self):
@@ -120,14 +120,17 @@ if __name__ == "__main__":
             time.sleep(1)
             # 启动游戏--腾讯
             adb_command("shell am start -n com.tencent.tmgp.supercell.clashofclans/com.supercell.titan.tencent.GameAppTencent")
-            time.sleep(10)
             game_script.init()
         elif game_script.state == 'waiting':
+            time.sleep(1)
             if wait_wakeup_timer > 0:
-                time.sleep(10)
-                wait_wakeup_timer -= 10
+                wait_wakeup_timer -= 1
                 if wait_wakeup_timer == 0:
                     game_script.waiting2initializing()
+                continue
+            # 是否已经进入主界面
+            if game_script.game_controller._match_template(["add"]):
+                game_script.start_processing()
                 continue
             # 系统维护 等待5分钟重试
             if game_script.game_controller._match_template(["reload_maintenance"]):
@@ -142,7 +145,6 @@ if __name__ == "__main__":
                 continue
             # 被攻击中
             if game_script.game_controller._match_template(["onatttacked"]):
-                time.sleep(1)
                 continue
             # 被攻击中-->回营
             game_script.game_controller.click_by_name("back_home")
@@ -154,16 +156,6 @@ if __name__ == "__main__":
             game_script.game_controller.click_by_name("close_tuxi_window")
             # 长时间未操作
             game_script.game_controller.click_by_name("reload")
-            # 是否已经进入主界面
-            if not game_script.game_controller._match_template(["add"]):
-                time.sleep(1)
-                continue
-            
-            if game_script.waitting_time <= 0:
-                game_script.start_processing()
-            else:
-                game_script.waitting_time -= 5
-                time.sleep(5)
 
         elif game_script.state == 'processing':            
             if offline_timer > 0:
