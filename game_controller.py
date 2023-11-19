@@ -103,7 +103,8 @@ class GameController:
             time.sleep(1)
 
     def donate_troops(self):
-        op_set = {"open", "donate_troops","close_donate_window"}
+        self.click_by_name("open", False)
+        op_set = {"donate_troops","close_donate_window"}
 
         # 找到可以操作的状态(图片)
         while True:
@@ -128,7 +129,7 @@ class GameController:
                         break
             time.sleep(1)
         time.sleep(1)
-        self.click_by_name("close")
+        self.click_by_name("close", False)
         if CLICK_LOG and len(self.heap_tarin_troops) > 0:
             logging.info('donated %d troops',len(self.heap_tarin_troops))
 
