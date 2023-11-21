@@ -62,6 +62,9 @@ class GameScript:
             if game_script.game_controller.click_by_name("close_medium_window", False):
                 continue
             # 关闭批量升级window
+            if game_script.game_controller.click_by_name("close_info_window", False):
+                continue
+            # 关闭批量升级window
             if game_script.game_controller.click_by_name("close_update_window", False):
                 continue
             # 误触建筑物
