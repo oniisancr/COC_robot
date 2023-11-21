@@ -101,6 +101,7 @@ class GameController:
 
     def donate_troops(self):
         self.click_by_name("open", False)
+        time.sleep(2)
         op_set = {"donate_troops","close_donate_window"}
 
         # 找到可以操作的状态(图片)
@@ -111,7 +112,8 @@ class GameController:
                 break
             else:
                 if(op_cover[0] != "close_donate_window"):
-                    self.click_by_name(op_cover[0])
+                    self.click_by_name(op_cover[0], 2)
+                    time.sleep(2)
                     op_set.remove(op_cover[0])
                 else:
                     # 捐兵
@@ -124,8 +126,7 @@ class GameController:
                     else:
                         self.click_by_name("close_donate_window")
                         break
-            time.sleep(1)
-        time.sleep(1)
+        time.sleep(0.5)
         self.click_by_name("close", False)
         if CLICK_LOG and len(self.heap_tarin_troops) > 0:
             logging.info('donated %d troops',len(self.heap_tarin_troops))
@@ -133,21 +134,21 @@ class GameController:
     def train(self):
         # 训练对应的捐兵
         if len(self.heap_tarin_troops) > 0:
+            is_Swaped = False   #只滑动一次
             self.click_by_name("train")
             time.sleep(1 + random.random())
             self.click_by_name("train_troops", duration = 1)
             time.sleep(1 + random.random())
             while len(self.heap_tarin_troops) > 0:
                 train_trops_id = str(heapq.heappop(self.heap_tarin_troops))
-                if int(train_trops_id) > 16:
+                if int(train_trops_id) > 16 and not is_Swaped:
                     # adb shell input swipe 1129 771 600 771
                     adb_swape(1129, 771, 600, 771)
-                    time.sleep(2)
-                self._match_template([train_trops_id])
-                if len(self.match_list) > 0:
-                    self.click_by_name(list(self.match_list.keys())[0])
+                    is_Swaped = True
+                    time.sleep(2.5)
+                if self.click_by_name(str(train_trops_id)):
                     if CLICK_LOG:
-                        logging.info("train " + list(self.match_list.keys())[0])
+                        logging.info("train " + str(train_trops_id) )
                 else:
                     break
             self.click_by_name("close_window_train")
@@ -172,7 +173,7 @@ class GameController:
         center_x = loc[0]
         center_y = loc[1]
         time.sleep(duration)
-        time.sleep(0.65+random.random())
+        time.sleep(0.65+random.random()/2)
         adb_tap(center_x+random.randint(0,10), center_y+random.randint(0,10)) # 模拟鼠标点击匹配到的目标位置
         return True
 
