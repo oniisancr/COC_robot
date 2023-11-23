@@ -61,7 +61,7 @@ class GameScript:
             # 关闭中窗口window  -（误触邮件、进攻、设置）
             if game_script.game_controller.click_by_name("close_medium_window", False):
                 continue
-            # 关闭批量升级window
+            # 关闭个人信息window
             if game_script.game_controller.click_by_name("close_info_window", False):
                 continue
             # 关闭批量升级window
@@ -69,14 +69,17 @@ class GameScript:
                 continue
             # 误触建筑物
             if game_script.game_controller._match_template(["target_info"]):
-                # 点击草坪
-                game_script.game_controller.click_by_name("grass",False)
+                # 点击空白 2192、534
+                game_script.game_controller.click([2192,532])
                 continue
             # 关闭超级兵界面
             if game_script.game_controller.click_by_name("close_supertroop_window", False):
                 continue
             # 关闭每周精选close_weekly_window
             if game_script.game_controller.click_by_name("close_weekly_window", False):
+                continue
+            # 长时间未操作
+            if game_script.game_controller.click_by_name("reload", False):
                 continue
             
             game_script.game_controller.shot_new = True
