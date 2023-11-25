@@ -9,6 +9,7 @@ import random
 import time
 import cv2
 import heapq
+from queue import Queue
 import logging
 from adb import adb_swape, adb_take_screenshot, adb_tap
 
@@ -19,13 +20,17 @@ class GameController:
     gray_screenshot = None
     troop_name = []
     troop_small_name = []
+    spell_name = []
+    spell_small_name = []
     heap_tarin_troops = []      #训练任务
+    queue_tarin_spells = []
 
     def __init__(self):
         self.template_images = {}
+        self.queue_tarin_spells = Queue()
         # 用于保存所有按钮位置，不再重新匹配
         self.btn_map = {}
-        folders = ['./images/btn', './images/troops', './images/troops_small']  # 以列表形式提供文件夹路径
+        folders = ['./images/btns', './images/troops', './images/troops_small','./images/spells','./images/spells_small']  # 以列表形式提供文件夹路径
         for folder_path in folders:
             # 获取文件夹中所有 .png 格式的文件名
             png_files = [f for f in os.listdir(folder_path) if f.endswith('.png')]
@@ -38,13 +43,22 @@ class GameController:
                     self.troop_name.append(name)
                 if folder_path == folders[2]:
                     self.troop_small_name.append(name)
+                if folder_path == folders[3]:
+                    self.spell_name.append(name)
+                if folder_path == folders[4]:
+                    self.spell_small_name.append(name)
         # 保存所有匹配的元素
         self.match_list = { }
         
-        # input_string = "17,18,1,2,2,1"
-        # elements = input_string.split(',')
-        # for element in elements:
-        #     heapq.heappush(self.heap_tarin_troops, int(element))
+        input_string = "17,18,1,2,2,1"
+        elements = input_string.split(',')
+        for element in elements:
+            heapq.heappush(self.heap_tarin_troops, int(element))
+        input_string = "spell1,spell3,spell4,spell4,spell3,spell2"
+        elements = input_string.split(',')
+        for element in elements:
+            self.queue_tarin_spells.put(element)
+
         # 是否重新获取屏幕图像
         self.shot_new = True
 
@@ -103,9 +117,22 @@ class GameController:
                 light_items = self.get_light_items(self.troop_small_name)
                 if len(light_items) > 0:
                     self.click(list(light_items.values())[0])
-                    heapq.heappush(self.heap_tarin_troops, int((list(light_items.keys())[0]).split('_')[0]))
+                    heapq.heappush(self.heap_tarin_troops, int((list(light_items.keys())[0])[5:].split('_')[0]))
                     if CLICK_LOG:
                         logging.info("donate " + (list(light_items.keys())[0]).split('_')[0])
+                else:
+                    # self.click_by_name("close_donate_window", True)
+                    break
+            #捐法术
+            while self._match_template([op_set[1]]):
+                light_items = self.get_light_items(self.spell_small_name)
+                if len(light_items) > 0:
+                    item_pos = list(light_items.values())[0]
+                    item_name = list(light_items.keys())[0]
+                    self.click(item_pos)
+                    self.queue_tarin_spells.put(item_name.split('_')[0])
+                    if CLICK_LOG:
+                        logging.info("donate " + item_name.split('_')[0])
                 else:
                     self.click_by_name("close_donate_window", True)
                     break
@@ -115,24 +142,37 @@ class GameController:
 
     def train(self):
         # 训练对应的捐兵
-        if len(self.heap_tarin_troops) > 0:
+        if len(self.heap_tarin_troops) > 0 or self.queue_tarin_spells.qsize() > 0:
             is_Swaped = False   #只滑动一次
             self.click_by_name("train", True)
-            time.sleep(1 + random.random())
-            self.click_by_name("train_troops")
-            time.sleep(1 + random.random())
-            while len(self.heap_tarin_troops) > 0:
-                train_trops_id = str(heapq.heappop(self.heap_tarin_troops))
-                if int(train_trops_id) > 16 and not is_Swaped:
-                    # adb shell input swipe 1129 771 600 771
-                    adb_swape(1129, 771, 600, 771)
-                    is_Swaped = True
-                    time.sleep(2.5)
-                if self.click_by_name(str(train_trops_id)):
-                    if CLICK_LOG:
-                        logging.info("train " + str(train_trops_id) )
-                else:
-                    break
+            if len(self.heap_tarin_troops) > 0:
+                time.sleep(1 + random.random())
+                self.click_by_name("train_troops")
+                time.sleep(1 + random.random())
+                while len(self.heap_tarin_troops) > 0:
+                    item_name = "troop" + str(heapq.heappop(self.heap_tarin_troops))
+                    train_troops_id = str(item_name)[5:]
+                    if int(train_troops_id) > 16 and not is_Swaped:
+                        # adb shell input swipe 1129 771 600 771
+                        adb_swape(1129, 771, 600, 771)
+                        is_Swaped = True
+                        time.sleep(2.5)
+                    if self.click_by_name(item_name):
+                        if CLICK_LOG:
+                            logging.info("train " + item_name )
+                    else:
+                        break
+            if self.queue_tarin_spells.qsize() > 0:
+                time.sleep(1 + random.random())
+                self.click_by_name("train_spells")
+                time.sleep(1 + random.random())
+                while self.queue_tarin_spells.qsize() > 0:
+                    item_name = self.queue_tarin_spells.get()
+                    if self.click_by_name(item_name):
+                        if CLICK_LOG:
+                            logging.info("train " + item_name )
+                    else:
+                        break
             self.click_by_name("close_window_train", True)
 
     def get_light_items(self, search_images):
