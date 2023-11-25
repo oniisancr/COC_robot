@@ -50,14 +50,14 @@ class GameController:
         # 保存所有匹配的元素
         self.match_list = { }
         
-        input_string = "17,18,1,2,2,1"
-        elements = input_string.split(',')
-        for element in elements:
-            heapq.heappush(self.heap_tarin_troops, int(element))
-        input_string = "spell1,spell3,spell4,spell4,spell3,spell2"
-        elements = input_string.split(',')
-        for element in elements:
-            self.queue_tarin_spells.put(element)
+        # input_string = "17,18,1,2,2,1"
+        # elements = input_string.split(',')
+        # for element in elements:
+        #     heapq.heappush(self.heap_tarin_troops, int(element))
+        # input_string = "spell1,spell3,spell4,spell4,spell3,spell2"
+        # elements = input_string.split(',')
+        # for element in elements:
+        #     self.queue_tarin_spells.put(element)
 
         # 是否重新获取屏幕图像
         self.shot_new = True
