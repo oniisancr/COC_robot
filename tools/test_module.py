@@ -29,8 +29,8 @@ gc = GameController()
 # else:
 #     print("未找到目标对象")
 
-gc._match_template(search_images=["add"])
+gc._match_template(search_images=["spell2"])
 if len(gc.match_list) > 0:
-    showRectangle(gc.screenshot, list(gc.match_list.values())[0], 125, 125)
+    showRectangle(gc.screenshot, list(gc.match_list.values())[0], 20, 20)
 else:
     print("未找到目标对象")

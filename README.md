@@ -24,6 +24,6 @@ Supercell Clash of Clans Auto Robot； 部落冲突自动化脚本；
 2. 希望你能参与完善的功能： （提交到dev分支）
     - 部落竞赛
     - 部落战
-    - 药水捐赠
+    - 打鱼
     - bug修复
     - ...

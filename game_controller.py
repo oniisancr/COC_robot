@@ -9,6 +9,7 @@ import random
 import time
 import cv2
 import heapq
+from queue import Queue
 import logging
 from adb import adb_swape, adb_take_screenshot, adb_tap
 
@@ -19,13 +20,17 @@ class GameController:
     gray_screenshot = None
     troop_name = []
     troop_small_name = []
+    spell_name = []
+    spell_small_name = []
     heap_tarin_troops = []      #训练任务
+    queue_tarin_spells = []
 
     def __init__(self):
         self.template_images = {}
+        self.queue_tarin_spells = Queue()
         # 用于保存所有按钮位置，不再重新匹配
         self.btn_map = {}
-        folders = ['./images/btn', './images/troops', './images/troops_small']  # 以列表形式提供文件夹路径
+        folders = ['./images/btns', './images/troops', './images/troops_small','./images/spells','./images/spells_small']  # 以列表形式提供文件夹路径
         for folder_path in folders:
             # 获取文件夹中所有 .png 格式的文件名
             png_files = [f for f in os.listdir(folder_path) if f.endswith('.png')]
@@ -38,6 +43,10 @@ class GameController:
                     self.troop_name.append(name)
                 if folder_path == folders[2]:
                     self.troop_small_name.append(name)
+                if folder_path == folders[3]:
+                    self.spell_name.append(name)
+                if folder_path == folders[4]:
+                    self.spell_small_name.append(name)
         # 保存所有匹配的元素
         self.match_list = { }
         
@@ -45,6 +54,11 @@ class GameController:
         # elements = input_string.split(',')
         # for element in elements:
         #     heapq.heappush(self.heap_tarin_troops, int(element))
+        # input_string = "spell1,spell3,spell4,spell4,spell3,spell2"
+        # elements = input_string.split(',')
+        # for element in elements:
+        #     self.queue_tarin_spells.put(element)
+
         # 是否重新获取屏幕图像
         self.shot_new = True
 
@@ -55,7 +69,7 @@ class GameController:
             self.screenshot = cv2.cvtColor(self.screenshot, cv2.COLOR_RGB2GRAY)
             self.gray_screenshot = self.screenshot
     
-    def _match_template(self, search_images, confidence = 0.95, grayscale=True):
+    def _match_template(self, search_images, confidence = 0.96, grayscale=True):
         if self.shot_new:
             self.take_screenshot(grayscale)
         self.match_list.clear()
@@ -76,81 +90,90 @@ class GameController:
         return flag
     
     def gain_base(self):
-        # 任一 
-        op_list = ["oil","gold","water"]
-        
-        self._match_template(op_list)
-        for template_name in op_list:
-            self.click_by_name(template_name)
+        self.take_screenshot()
+        self.shot_new = False
+        self.click_by_name("oil")
+        self.click_by_name("gold")
+        self.click_by_name("water")
+        self.shot_new = True
 
     def yyzhan(self):
-        
-        op_set = {"open", "yyz", "yyz_start"}
-        # 找到可以操作的状态(图片)
-        while True:
-            self._match_template(op_set)
-            op_cover = list(set(self.match_list) & set(op_set))
-            if len(op_cover) == 0:
-                break
-            else:
-                self.click_by_name(op_cover[0])
-                if "yyz_start" == op_cover[0]:
-                    time.sleep(2)
-                    # 回到主界面
-                    self.click_by_name("close")
-                    break
-                op_set.remove(op_cover[0])
+        self.click_by_name("open")
+        op_set = ["yyz", "yyz_start"]
+        if self.click_by_name(op_set[0]):
+            self.click_by_name(op_set[1])
             time.sleep(1)
+            self.click_by_name("close")
+
 
     def donate_troops(self):
-        op_set = {"open", "donate_troops","close_donate_window"}
-
-        # 找到可以操作的状态(图片)
-        while True:
-            self._match_template(op_set)
-            op_cover = list(set(self.match_list) & set(op_set))
-            if len(op_cover) == 0:
-                break
-            else:
-                if(op_cover[0] != "close_donate_window"):
-                    self.click_by_name(op_cover[0])
-                    op_set.remove(op_cover[0])
+        self.click_by_name("open")
+        time.sleep(2)
+        op_set = ["donate_troops","close_donate_window"]
+        if self.click_by_name(op_set[0]):
+            time.sleep(2)
+            # 捐兵
+            while self._match_template([op_set[1]]):
+                light_items = self.get_light_items(self.troop_small_name)
+                if len(light_items) > 0:
+                    self.click(list(light_items.values())[0])
+                    heapq.heappush(self.heap_tarin_troops, int((list(light_items.keys())[0])[5:].split('_')[0]))
+                    if CLICK_LOG:
+                        logging.info("donate " + (list(light_items.keys())[0]).split('_')[0])
                 else:
-                    # 捐兵
-                    light_items = self.get_light_items(self.troop_small_name)
-                    if len(light_items) > 0:
-                        self.click(list(light_items.values())[0])
-                        heapq.heappush(self.heap_tarin_troops, int((list(light_items.keys())[0]).split('_')[0]))
-                        if CLICK_LOG:
-                            logging.info("donate " + (list(light_items.keys())[0]).split('_')[0])
-                    else:
-                        self.click_by_name("close_donate_window")
-                        break
-            time.sleep(1)
-        time.sleep(1)
+                    # self.click_by_name("close_donate_window", True)
+                    break
+            #捐法术
+            while self._match_template([op_set[1]]):
+                light_items = self.get_light_items(self.spell_small_name)
+                if len(light_items) > 0:
+                    item_pos = list(light_items.values())[0]
+                    item_name = list(light_items.keys())[0]
+                    self.click(item_pos)
+                    self.queue_tarin_spells.put(item_name.split('_')[0])
+                    if CLICK_LOG:
+                        logging.info("donate " + item_name.split('_')[0])
+                else:
+                    self.click_by_name("close_donate_window", True)
+                    break
         self.click_by_name("close")
         if CLICK_LOG and len(self.heap_tarin_troops) > 0:
             logging.info('donated %d troops',len(self.heap_tarin_troops))
 
     def train(self):
         # 训练对应的捐兵
-        if len(self.heap_tarin_troops) > 0:
-            self.click_by_name("train")
-            self.click_by_name("train_troops")
-            while len(self.heap_tarin_troops) > 0:
-                train_trops_id = str(heapq.heappop(self.heap_tarin_troops))
-                if int(train_trops_id) > 16:
-                    # adb shell input swipe 1129 771 600 771
-                    adb_swape(1129, 771, 600, 771)
-                    time.sleep(2)
-                self._match_template([train_trops_id])
-                if len(self.match_list) > 0:
-                    self.click_by_name(list(self.match_list.keys())[0])
-                    if CLICK_LOG:
-                        logging.info("train " + list(self.match_list.keys())[0])
-                else:
-                    break
-            self.click_by_name("close_window_train")
+        if len(self.heap_tarin_troops) > 0 or self.queue_tarin_spells.qsize() > 0:
+            is_Swaped = False   #只滑动一次
+            self.click_by_name("train", True)
+            if len(self.heap_tarin_troops) > 0:
+                time.sleep(1 + random.random())
+                self.click_by_name("train_troops")
+                time.sleep(1 + random.random())
+                while len(self.heap_tarin_troops) > 0:
+                    item_name = "troop" + str(heapq.heappop(self.heap_tarin_troops))
+                    train_troops_id = str(item_name)[5:]
+                    if int(train_troops_id) > 16 and not is_Swaped:
+                        # adb shell input swipe 1129 771 600 771
+                        adb_swape(1129, 771, 600, 771)
+                        is_Swaped = True
+                        time.sleep(2.5)
+                    if self.click_by_name(item_name):
+                        if CLICK_LOG:
+                            logging.info("train " + item_name )
+                    else:
+                        break
+            if self.queue_tarin_spells.qsize() > 0:
+                time.sleep(1 + random.random())
+                self.click_by_name("train_spells")
+                time.sleep(1 + random.random())
+                while self.queue_tarin_spells.qsize() > 0:
+                    item_name = self.queue_tarin_spells.get()
+                    if self.click_by_name(item_name):
+                        if CLICK_LOG:
+                            logging.info("train " + item_name )
+                    else:
+                        break
+            self.click_by_name("close_window_train", True)
 
     def get_light_items(self, search_images):
         light_items = {}
@@ -171,12 +194,12 @@ class GameController:
             return False
         center_x = loc[0]
         center_y = loc[1]
-        time.sleep(random.randint(0, 1)+random.random())
-        adb_tap(center_x+random.randint(0,10), center_y+random.randint(0,10)) # 模拟鼠标点击匹配到的目标位置
-        time.sleep(random.randint(1, 2)+random.random())
+        time.sleep(0.5+random.random()/2)
+        adb_tap(center_x+random.randint(5,15), center_y+random.randint(5,15)) # 模拟鼠标点击匹配到的目标位置
+        time.sleep(0.5+random.random()/2)
         return True
 
-    def click_by_name(self, template_name, use_btn_buf = True):
+    def click_by_name(self, template_name, use_btn_buf = False):
         if CLICK_LOG:
             logging.info("click "+template_name)
         if template_name in self.btn_map:
