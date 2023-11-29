@@ -118,8 +118,8 @@ class GameController:
                 if len(light_items) > 0:
                     self.click(list(light_items.values())[0])
                     heapq.heappush(self.heap_tarin_troops, int((list(light_items.keys())[0])[5:].split('_')[0]))
-                    if CLICK_LOG:
-                        logging.info("donate " + (list(light_items.keys())[0]).split('_')[0])
+                    # if CLICK_LOG:
+                    logging.info("donate troops :" + (list(light_items.keys())[0]).split('_')[0])
                 else:
                     # self.click_by_name("close_donate_window", True)
                     break
@@ -131,8 +131,8 @@ class GameController:
                     item_name = list(light_items.keys())[0]
                     self.click(item_pos)
                     self.queue_tarin_spells.put(item_name.split('_')[0])
-                    if CLICK_LOG:
-                        logging.info("donate " + item_name.split('_')[0])
+                    # if CLICK_LOG:
+                    logging.info("donate spell :" + item_name.split('_')[0])
                 else:
                     self.click_by_name("close_donate_window", True)
                     break
