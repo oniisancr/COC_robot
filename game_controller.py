@@ -50,14 +50,14 @@ class GameController:
         # 保存所有匹配的元素
         self.match_list = { }
         
-        # input_string = "17,18,1,2,2,1"
-        # elements = input_string.split(',')
-        # for element in elements:
-        #     heapq.heappush(self.heap_tarin_troops, int(element))
-        # input_string = "spell1,spell3,spell4,spell4,spell3,spell2"
-        # elements = input_string.split(',')
-        # for element in elements:
-        #     self.queue_tarin_spells.put(element)
+        input_string = "17,18,1,2,2,1"
+        elements = input_string.split(',')
+        for element in elements:
+            heapq.heappush(self.heap_tarin_troops, int(element))
+        input_string = "spell1,spell3,spell4,spell4,spell3,spell2"
+        elements = input_string.split(',')
+        for element in elements:
+            self.queue_tarin_spells.put(element)
 
         # 是否重新获取屏幕图像
         self.shot_new = True
@@ -69,20 +69,25 @@ class GameController:
             self.screenshot = cv2.cvtColor(self.screenshot, cv2.COLOR_RGB2GRAY)
             self.gray_screenshot = self.screenshot
     
-    def _match_template(self, search_images, confidence = 0.96, grayscale=True):
+    def _match_template(self, search_images, default_confidence = 0.96, grayscale=True):
         if self.shot_new:
             self.take_screenshot(grayscale)
         self.match_list.clear()
         #是否至少存在一个匹配对象
         flag = False
         for template_name in search_images:
+            # 降低confidence
+            if template_name in self.troop_name or template_name in self.spell_name:
+                cur_confidence = 0.9
+            else:
+                cur_confidence = default_confidence
             template_image = self.template_images[template_name]
             if grayscale:
                 template_image = cv2.cvtColor(self.template_images[template_name], cv2.COLOR_BGR2GRAY)
             res = cv2.matchTemplate(self.screenshot, template_image, cv2.TM_CCORR_NORMED)
             # 找到最佳匹配位置
             min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
-            if max_val > confidence:
+            if max_val > cur_confidence:
                 self.match_list[template_name] = max_loc
                 flag = True
                 if template_name in self.btn_map:
@@ -109,6 +114,7 @@ class GameController:
     def donate_troops(self):
         self.click_by_name("open")
         time.sleep(2)
+        self.click_by_name("down")
         op_set = ["donate_troops","close_donate_window"]
         if self.click_by_name(op_set[0]):
             time.sleep(2)
