@@ -69,7 +69,7 @@ class GameController:
             self.screenshot = cv2.cvtColor(self.screenshot, cv2.COLOR_RGB2GRAY)
             self.gray_screenshot = self.screenshot
     
-    def _match_template(self, search_images, default_confidence = 0.96, grayscale=True):
+    def _match_template(self, search_images, confidence = 0.96, grayscale=True):
         if self.shot_new:
             self.take_screenshot(grayscale)
         self.match_list.clear()
@@ -80,7 +80,7 @@ class GameController:
             if template_name in self.troop_name or template_name in self.spell_name:
                 cur_confidence = 0.9
             else:
-                cur_confidence = default_confidence
+                cur_confidence = confidence
             template_image = self.template_images[template_name]
             if grayscale:
                 template_image = cv2.cvtColor(self.template_images[template_name], cv2.COLOR_BGR2GRAY)
