@@ -23,7 +23,7 @@ def adb_take_screenshot():
     # 将二进制图像数据读取为NumPy数组
     screenshot_np = np.frombuffer(screenshot_bytes, np.uint8)
     # 使用OpenCV解码图像数据
-    screenshot_cv = cv2.imdecode(screenshot_np, cv2.COLOR_RGB2BGR)
+    screenshot_cv = cv2.imdecode(screenshot_np, cv2.IMREAD_COLOR)
     return screenshot_cv
 def adb_tap(x, y):
     adb_command = adb_command_full( f"shell input tap {x} {y}")
