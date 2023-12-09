@@ -4,8 +4,10 @@ Created on Mon Oct 30  19:21:36 2023
 
 @author: Rui
 """
+import os
+import subprocess
 from transitions import Machine
-from adb import adb_command
+from adb import adb_command, adb_command_full
 from game_controller import GameController
 import time
 import config
@@ -15,6 +17,20 @@ logging.basicConfig(filename='coc_robot.log', level=logging.INFO, format='%(asct
 
 offline_timer = 0
 wait_wakeup_timer = 0
+
+def check_prepare():
+    if not os.path.exists(config.adb_path):
+        print("no adb.exe")
+        exit(0)
+    
+    cmd = adb_command_full( " devices")
+    result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+    # 解析输出
+    output_lines = result.stdout.split('\n')
+    # 检查是否存在设备，需要开启开发者模式
+    if output_lines[1] == '':
+        print("Pls confirm USB Debugging Mode has opened!")
+        exit(0)
 
 class GameScript:
     states = ['initializing', 'waiting', 'processing', 'finishing']
@@ -120,6 +136,7 @@ if __name__ == "__main__":
     game_script = GameScript()
     while game_script.state != 'finishing':
         if game_script.state == 'initializing':
+            check_prepare()
             time.sleep(1)
             # 回到主界面
             adb_command("shell input keyevent 3")

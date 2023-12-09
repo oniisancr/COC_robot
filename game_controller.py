@@ -63,7 +63,10 @@ class GameController:
         self.shot_new = True
 
     def take_screenshot(self, grayscale=True):
-        self.screenshot = adb_take_screenshot()
+        shot = adb_take_screenshot()
+        if shot is None:
+            return
+        self.screenshot =  shot
         self.light_screenshot = self.screenshot
         if grayscale:
             self.screenshot = cv2.cvtColor(self.screenshot, cv2.COLOR_RGB2GRAY)

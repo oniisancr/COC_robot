@@ -1,3 +1,5 @@
+adb_path = 'D:/platform-tools/adb.exe'
+
 gain_interval = 600 #每隔10分钟收集一次资源
 
 yyzhan = False #友谊战
