@@ -12,9 +12,13 @@ Supercell Clash of Clans Auto Robot； 部落冲突自动化脚本；
     - python库：cv2
 
 - 使用：
-    - 模拟器或手机开始调试功能后，直接执行脚本game_script.py即可。
-    - 在config.py 中可简单配置功能开关
-
+    1. config.py文件中，修改`adb_path`，为自己的adb.exe路径。
+        - 可简单配置部分功能开关
+    2. 启动安卓模拟器。
+        - 设置分辨率：1080x2400，dpi: 392。
+        - 确保调试模式已开启
+    3. 执行脚本game_script.py
+由于COC经常更新，建议使用dev分支代码，其包含了最新的问题修复。
 ---
 
 ## （OP） **期待你的提交**
