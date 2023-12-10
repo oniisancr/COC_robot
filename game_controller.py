@@ -146,8 +146,8 @@ class GameController:
                     self.click_by_name("close_donate_window", True)
                     break
         self.click_by_name("close")
-        if CLICK_LOG and len(self.heap_tarin_troops) > 0:
-            logging.info('donated %d troops',len(self.heap_tarin_troops))
+        # if CLICK_LOG and len(self.heap_tarin_troops) > 0:
+        #     logging.info('donated %d troops',len(self.heap_tarin_troops))
 
     def train(self):
         # 训练对应的捐兵

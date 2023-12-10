@@ -4,8 +4,10 @@ Created on Mon Oct 30  19:21:36 2023
 
 @author: Rui
 """
+from datetime import timedelta
 import os
 import subprocess
+import sys
 from transitions import Machine
 from adb import adb_command, adb_command_full
 from game_controller import GameController
@@ -31,6 +33,15 @@ def check_prepare():
     if output_lines[1] == '':
         print("Pls confirm USB Debugging Mode has opened!")
         exit(0)
+def update_text(text):
+    sys.stdout.write("\r\033[K" + text)
+    sys.stdout.flush()
+
+def seconds_to_hms_string(seconds):
+    td = timedelta(seconds=seconds)
+    hours, remainder = divmod(td.seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
 
 class GameScript:
     states = ['initializing', 'waiting', 'processing', 'finishing']
@@ -101,24 +112,28 @@ class GameScript:
             game_script.game_controller.shot_new = True
     
     def execute_game_action(self):
-
+        global offline_timer
         if int(time.time()) - self.last_gain > config.gain_interval:
             if self.start_task is False:
                 self.keep_clear_home()
                 self.start_task = True
-            self.last_gain = int(time.time())
             if config.CLICK_LOG:
                 logging.info("gain_base")
+            update_text(f"processing. {seconds_to_hms_string(offline_timer)} s remaining. task: gain resourse") 
+            self.last_gain = int(time.time())
             self.game_controller.gain_base()
+            offline_timer -= int(time.time()) - self.last_gain
 
         if config.yyzhan and int(time.time()) - self.last_yyz > config.yyzhan_Interval: #控制频率
             if self.start_task is False:
                 self.keep_clear_home()
                 self.start_task = True
-            self.last_yyz = int(time.time())
             if config.CLICK_LOG:
                 logging.info('start yyzhan')
+            update_text(f"processing. {seconds_to_hms_string(offline_timer)} s remaining. task: yyzhan")
+            self.last_yyz = int(time.time())
             self.game_controller.yyzhan()
+            offline_timer -= int(time.time()) - self.last_yyz
         
         if config.donate_troops and int(time.time()) - self.last_donate > config.donate_Interval:
             if self.start_task is False:
@@ -126,9 +141,15 @@ class GameScript:
                 self.start_task = True
             if config.CLICK_LOG:
                 logging.info('start donate_troops')
+            update_text(f"processing. {seconds_to_hms_string(offline_timer)} s remaining. task: donate troops")
+            self.last_donate = int(time.time())
             self.game_controller.donate_troops()
-            self.last_donate = time.time()
-        self.game_controller.train()
+            offline_timer -= int(time.time()) - self.last_donate
+        if len(self.game_controller.heap_tarin_troops) > 0 or self.game_controller.queue_tarin_spells.qsize() > 0:
+            update_text(f"processing. {seconds_to_hms_string(offline_timer)} s remaining. task: train troops")
+            self.last_train = int(time.time())
+            self.game_controller.train()
+            offline_timer -= int(time.time()) - self.last_train
         
         self.start_task = False
 
@@ -136,6 +157,7 @@ if __name__ == "__main__":
     game_script = GameScript()
     while game_script.state != 'finishing':
         if game_script.state == 'initializing':
+            update_text(f"initializing... ")
             check_prepare()
             time.sleep(1)
             # 回到主界面
@@ -144,12 +166,15 @@ if __name__ == "__main__":
             # 启动游戏--腾讯
             adb_command("shell am start -n com.tencent.tmgp.supercell.clashofclans/com.supercell.titan.tencent.GameAppTencent")
             game_script.init()
+            sys.stdout.write("\n")
         elif game_script.state == 'waiting':
+            update_text(f"waiting... {seconds_to_hms_string(wait_wakeup_timer)} s remaining")
             time.sleep(1)
             if wait_wakeup_timer > 0:
                 wait_wakeup_timer -= 1
                 if wait_wakeup_timer == 0:
                     game_script.waiting2initializing()
+                    sys.stdout.write("\n")
                 continue
             # 是否已经进入主界面
             if game_script.game_controller._match_template(["add"]):
@@ -180,7 +205,8 @@ if __name__ == "__main__":
             # 长时间未操作
             game_script.game_controller.click_by_name("reload")
 
-        elif game_script.state == 'processing':            
+        elif game_script.state == 'processing':
+            update_text(f"processing. {seconds_to_hms_string(offline_timer)} s remaining. task: idl")      
             if offline_timer > 0:
                 time.sleep(1)
                 offline_timer -= 1
@@ -190,5 +216,6 @@ if __name__ == "__main__":
                     wait_wakeup_timer = config.WAKEUP_TIME
                     offline_timer = config.MAX_ONLINE_TIME
                     game_script.processing2waiting()
+                    sys.stdout.write("\n")
             game_script.execute_game_action()
             #game_script.finish()
