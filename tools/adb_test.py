@@ -28,7 +28,7 @@ def take_screenshot():
     screenshot_np = np.frombuffer(screenshot_bytes, np.uint8)
 
     # 使用OpenCV解码图像数据
-    screenshot_cv = cv2.imdecode(screenshot_np, cv2.COLOR_RGB2BGR)
+    screenshot_cv = cv2.imdecode(screenshot_np, cv2.IMREAD_COLOR)
     return screenshot_cv
 
 if __name__ == "__main__":

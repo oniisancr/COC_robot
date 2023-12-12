@@ -63,7 +63,10 @@ class GameController:
         self.shot_new = True
 
     def take_screenshot(self, grayscale=True):
-        self.screenshot = adb_take_screenshot()
+        shot = adb_take_screenshot()
+        if shot is None:
+            return
+        self.screenshot =  shot
         self.light_screenshot = self.screenshot
         if grayscale:
             self.screenshot = cv2.cvtColor(self.screenshot, cv2.COLOR_RGB2GRAY)
@@ -76,13 +79,18 @@ class GameController:
         #是否至少存在一个匹配对象
         flag = False
         for template_name in search_images:
+            # 降低confidence
+            if template_name in self.troop_name or template_name in self.spell_name:
+                cur_confidence = 0.9
+            else:
+                cur_confidence = confidence
             template_image = self.template_images[template_name]
             if grayscale:
                 template_image = cv2.cvtColor(self.template_images[template_name], cv2.COLOR_BGR2GRAY)
             res = cv2.matchTemplate(self.screenshot, template_image, cv2.TM_CCORR_NORMED)
             # 找到最佳匹配位置
             min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
-            if max_val > confidence:
+            if max_val > cur_confidence:
                 self.match_list[template_name] = max_loc
                 flag = True
                 if template_name in self.btn_map:
@@ -109,6 +117,7 @@ class GameController:
     def donate_troops(self):
         self.click_by_name("open")
         time.sleep(2)
+        self.click_by_name("down")
         op_set = ["donate_troops","close_donate_window"]
         if self.click_by_name(op_set[0]):
             time.sleep(2)
@@ -118,8 +127,8 @@ class GameController:
                 if len(light_items) > 0:
                     self.click(list(light_items.values())[0])
                     heapq.heappush(self.heap_tarin_troops, int((list(light_items.keys())[0])[5:].split('_')[0]))
-                    if CLICK_LOG:
-                        logging.info("donate " + (list(light_items.keys())[0]).split('_')[0])
+                    # if CLICK_LOG:
+                    logging.info("donate troops :" + (list(light_items.keys())[0]).split('_')[0])
                 else:
                     # self.click_by_name("close_donate_window", True)
                     break
@@ -131,14 +140,14 @@ class GameController:
                     item_name = list(light_items.keys())[0]
                     self.click(item_pos)
                     self.queue_tarin_spells.put(item_name.split('_')[0])
-                    if CLICK_LOG:
-                        logging.info("donate " + item_name.split('_')[0])
+                    # if CLICK_LOG:
+                    logging.info("donate spell :" + item_name.split('_')[0])
                 else:
                     self.click_by_name("close_donate_window", True)
                     break
         self.click_by_name("close")
-        if CLICK_LOG and len(self.heap_tarin_troops) > 0:
-            logging.info('donated %d troops',len(self.heap_tarin_troops))
+        # if CLICK_LOG and len(self.heap_tarin_troops) > 0:
+        #     logging.info('donated %d troops',len(self.heap_tarin_troops))
 
     def train(self):
         # 训练对应的捐兵
