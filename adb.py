@@ -7,7 +7,6 @@ Created on Sun Nov 05  19:38:38 2023
 
 # 使用adb控制设备
 import subprocess
-import time
 import config
 
 import cv2
@@ -40,4 +39,3 @@ def adb_swape(x1, x2, y1, y2):
 def adb_command(cmd):
     adb_command = adb_command_full( cmd)
     subprocess.run(adb_command, shell=True)
-    time.sleep(2)
