@@ -163,7 +163,7 @@ class GameController:
                     train_troops_id = str(item_name)[5:]
                     if int(train_troops_id) > 16 and not is_Swaped:
                         # adb shell input swipe 1129 771 600 771
-                        adb_swape(1129, 771, 600, 771)
+                        adb_swape(1129, 771, 500, 771)
                         is_Swaped = True
                         time.sleep(2.5)
                     if self.click_by_name(item_name):
