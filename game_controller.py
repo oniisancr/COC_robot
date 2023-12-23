@@ -117,6 +117,7 @@ class GameController:
     def donate_troops(self):
         self.click_by_name("open")
         time.sleep(2)
+        self.click_by_name("rightchat", True)
         self.click_by_name("down")
         op_set = ["donate_troops","close_donate_window"]
         if self.click_by_name(op_set[0]):
@@ -156,14 +157,14 @@ class GameController:
             self.click_by_name("train", True)
             if len(self.heap_tarin_troops) > 0:
                 time.sleep(1 + random.random())
-                self.click_by_name("train_troops")
+                self.click_by_name("train_troops", True)
                 time.sleep(1 + random.random())
                 while len(self.heap_tarin_troops) > 0:
                     item_name = "troop" + str(heapq.heappop(self.heap_tarin_troops))
                     train_troops_id = str(item_name)[5:]
                     if int(train_troops_id) > 16 and not is_Swaped:
                         # adb shell input swipe 1129 771 600 771
-                        adb_swape(1129, 771, 600, 771)
+                        adb_swape(1129, 771, 500, 771)
                         is_Swaped = True
                         time.sleep(2.5)
                     if self.click_by_name(item_name):
@@ -173,7 +174,7 @@ class GameController:
                         break
             if self.queue_tarin_spells.qsize() > 0:
                 time.sleep(1 + random.random())
-                self.click_by_name("train_spells")
+                self.click_by_name("train_spells", True)
                 time.sleep(1 + random.random())
                 while self.queue_tarin_spells.qsize() > 0:
                     item_name = self.queue_tarin_spells.get()

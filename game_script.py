@@ -27,6 +27,7 @@ def check_prepare():
     
     cmd = adb_command_full( " devices")
     result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+    print(result.stdout)
     # 解析输出
     output_lines = result.stdout.split('\n')
     # 检查是否存在设备，需要开启开发者模式
@@ -172,10 +173,11 @@ if __name__ == "__main__":
             time.sleep(1)
             if wait_wakeup_timer > 0:
                 wait_wakeup_timer -= 1
-                if wait_wakeup_timer == 0:
+                if wait_wakeup_timer == 0 and to_init:
                     game_script.waiting2initializing()
                     sys.stdout.write("\n")
                 continue
+            to_init = True
             # 是否已经进入主界面
             if game_script.game_controller._match_template(["add"]):
                 game_script.start_processing()
@@ -185,6 +187,21 @@ if __name__ == "__main__":
                 wait_wakeup_timer = 300
                 # 退出
                 adb_command("shell am force-stop com.tencent.tmgp.supercell.clashofclans")
+                continue
+            # 版本更新
+            if game_script.game_controller._match_template(["new_version"]):
+                game_script.game_controller.click_by_name("new_version_yes")
+                wait_wakeup_timer = 60
+                to_init = False
+                continue
+             # 版本更新安装，仅适用于雷电9模拟器
+            if game_script.game_controller.click_by_name("install"):
+                to_init = False
+                wait_wakeup_timer = 60
+                continue
+            # 打开新版本
+            if game_script.game_controller.click_by_name("open_new_version"):
+                to_init = False
                 continue
             # 更新错误
             if game_script.game_controller._match_template(["update_error"],confidence=0.965):
