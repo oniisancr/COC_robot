@@ -26,19 +26,21 @@ def take_screenshot():
 
     # 将二进制图像数据读取为NumPy数组
     screenshot_np = np.frombuffer(screenshot_bytes, np.uint8)
-
+    if len(screenshot_np) != 0:
     # 使用OpenCV解码图像数据
-    screenshot_cv = cv2.imdecode(screenshot_np, cv2.IMREAD_COLOR)
-    return screenshot_cv
+        screenshot_cv = cv2.imdecode(screenshot_np, cv2.IMREAD_COLOR)
+        return screenshot_cv
+    else:
+        return None
 
 if __name__ == "__main__":
     # 截取屏幕并将其保存到变量中
     screenshot = take_screenshot()
-
-    # 可以进行进一步的处理，比如显示图像
-    cv2.imshow('Screenshot', screenshot)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    if screenshot is not None:
+        # 可以进行进一步的处理，比如显示图像
+        cv2.imshow('Screenshot', screenshot)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
 
     # print(run_adb_command("devices"))

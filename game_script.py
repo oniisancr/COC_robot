@@ -27,6 +27,7 @@ def check_prepare():
     
     cmd = adb_command_full( " devices")
     result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+    print(result.stdout)
     # 解析输出
     output_lines = result.stdout.split('\n')
     # 检查是否存在设备，需要开启开发者模式
