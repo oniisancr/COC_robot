@@ -14,6 +14,8 @@ from game_controller import GameController
 import time
 import config
 import logging
+import re
+
 # 配置日志记录到文件
 logging.basicConfig(filename='coc_robot.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s',filemode='w')
 
@@ -25,15 +27,35 @@ def check_prepare():
         print("no adb.exe")
         exit(0)
     
-    cmd = adb_command_full( " devices")
+    cmd = adb_command_full( " devices", device = False)
     result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
     print(result.stdout)
     # 解析输出
-    output_lines = result.stdout.split('\n')
+    matches = re.findall(re.compile("(emulator-\d+)"), result.stdout)
+
     # 检查是否存在设备，需要开启开发者模式
-    if output_lines[1] == '':
+    if len(matches) == 0:
         print("Pls confirm USB Debugging Mode has opened!")
         exit(0)
+    elif len(matches) == 1:
+        config.device_name = matches[0]
+    else:
+        print("please select devices: ")
+        for idx in range(len(matches)):
+            print(f"{idx} : {matches[idx]}")
+        print("please select devices: ")
+        select_id = input()
+        try:
+            select_id = int(select_id)
+            if select_id >= 0 and select_id < len(matches):
+                config.device_name = matches[select_id]
+            else:
+                print("Invalid input! Exiting...")
+                exit(0)
+        except ValueError:
+            print("Invalid input! Exiting...")
+            exit(0)
+
 def update_text(text):
     sys.stdout.write("\r\033[K" + text)
     sys.stdout.flush()
@@ -160,6 +182,7 @@ if __name__ == "__main__":
         if game_script.state == 'initializing':
             update_text(f"initializing... ")
             check_prepare()
+            print(f"select device: {config.device_name}")
             time.sleep(1)
             # 回到主界面
             adb_command("shell input keyevent 3")

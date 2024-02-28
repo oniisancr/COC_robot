@@ -13,8 +13,11 @@ import cv2
 import numpy as np
 
 
-def adb_command_full(command, adbpath = config.adb_path):
-    return adbpath + ' ' +command
+def adb_command_full(command, adbpath = config.adb_path, device = True):
+    if device:
+        return adbpath +" -s "+ config.device_name +' ' +command
+    else:
+        return adbpath + ' ' +command
 
 def adb_take_screenshot():
     # 执行ADB命令截取屏幕并将输出保存到变量中
