@@ -1,5 +1,6 @@
 import torch
 import cv2
+from util.positon import screensz
 
 class YoloCOC:
     def __init__(self, model_path='best.pt'):
@@ -7,11 +8,12 @@ class YoloCOC:
         self.model = torch.hub.load('ultralytics/yolov5', 'custom', model_path)  # custom/local model
         self.model.eval()  # 设置为评估模式
 
-    def detect(self, image, size=1280, gray=False):
+    def detect(self, image, range=screensz, size=1280, gray=False):
         """识别所有非灰色元素
 
         Args:
             image (string/NumPy): image path or image
+            range: 范围匹配
             size (int, optional): 图片尺寸. Defaults to 1280.
             gray: 图片是否是灰度图 
         Returns:
@@ -31,7 +33,10 @@ class YoloCOC:
             # 获取检测框中心点位置
             center_x = (det[0] + det[2]) / 2
             center_y = (det[1] + det[3]) / 2
-
+            if center_x < range[0] or center_y < range[1]:
+                continue
+            if center_x > range[2] or center_y > range[3]:
+                continue    
             if not gray:
                 # 获取图像中心点像素颜色
                 b, g, r = self.get_pixel_color(image, center_x, center_y)

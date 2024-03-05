@@ -106,7 +106,7 @@ class GameScript:
             game_script.game_controller.shot_new = False
             
             # 关闭窗口window
-            if game_script.game_controller.click_by_name("close_window", False):
+            if game_script.game_controller.click_by_name("close_window"):
                 continue
             # 长时间未操作
             # if game_script.game_controller.click_by_name("reload", False):

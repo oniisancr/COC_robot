@@ -12,7 +12,7 @@ from queue import Queue
 import logging
 
 from util.adb import adb_swape, adb_take_screenshot, adb_tap
-from util.positon import rightchat, train_troops, train_spells
+from util.positon import rightchat, train_troops, train_spells, screensz
 
 from config import CLICK_LOG
 from util.yolo import YoloCOC
@@ -65,10 +65,10 @@ class GameController:
             self.screenshot = cv2.cvtColor(self.screenshot, cv2.COLOR_RGB2GRAY)
             self.gray_screenshot = self.screenshot
     
-    def match_yolo(self, name, grayscale=False):
+    def match_yolo(self, name, range=screensz,  grayscale=False):
         if self.shot_new:
             self.take_screenshot(grayscale)
-        self.btn_map = self.yolo.detect(self.screenshot)
+        self.btn_map = self.yolo.detect(image=self.screenshot, range=range, gray=grayscale)
         if name in self.btn_map.keys():
             return True
         else:
@@ -133,27 +133,28 @@ class GameController:
         self.click_by_name("down")
         op_set = ["donate","close_window"]
         if self.click_by_name(op_set[0]):
+            range=[525, 60, 1200, 500]
             time.sleep(2)
             # 捐兵
-            while self.match_yolo(op_set[1]):
+            while self.match_yolo(op_set[1], range):
                 # 不存在可操作元素则退出捐兵
                 find_troops = set(self.btn_map.keys()).intersection(set(self.troops_name))
                 if not find_troops:
                     break
                 for troop in find_troops:
-                    if self.click_by_name(troop, True):
+                    if self.click_by_name(troop, range, True):
                         self.train_troops.append(troop)   #记录捐兵信息
                         logging.info("donate troops :" + troop)
                     break  #每次捐一个
             #捐法术
-            while self.match_yolo(op_set[1]):
+            while self.match_yolo(op_set[1], range):
                 find_spells = set(self.btn_map.keys()).intersection(set(self.spells_name))
                 if not find_spells:
                     time.sleep(1)
-                    self.click_by_name("close_window", True)
+                    self.click_by_name("close_window", use_btn_buf=True)
                     break
                 for spell in find_spells:
-                    if self.click_by_name(spell, True):
+                    if self.click_by_name(spell, range, True):
                         self.train_spells.append(spell)   #记录捐兵信息
                         logging.info("donate spells :" + spell)
                     break
@@ -164,7 +165,7 @@ class GameController:
         # 训练对应的捐兵
         if len(self.train_troops) > 0 or len(self.train_spells) > 0:
             is_Swaped = False   #只滑动一次
-            if not self.click_by_name("train", True):
+            if not self.click_by_name("train", use_btn_buf=True):
                 return
             if len(self.train_troops) > 0:
                 time.sleep(1 + random.random())
@@ -191,7 +192,7 @@ class GameController:
                         logging.info("train " + item_name )
                     else:
                         break
-            self.click_by_name("close_window", True)
+            self.click_by_name("close_window", use_btn_buf=True)
 
     def get_light_items(self, search_images):
         light_items = {}
@@ -217,7 +218,7 @@ class GameController:
         time.sleep(0.25+random.random()/2)
         return True
 
-    def click_by_name(self, template_name, use_btn_buf = False):
+    def click_by_name(self, template_name, range = screensz, use_btn_buf = False):
         """根据元素名进行点击
 
         Args:
@@ -235,7 +236,7 @@ class GameController:
         if self.click(self.btn_map.get(template_name)):
             return True
         else:
-            self.match_yolo(template_name)
+            self.match_yolo(name=template_name, range=range)
             return self.click(self.btn_map.get(template_name))
     
     def show_rectangle(self):
