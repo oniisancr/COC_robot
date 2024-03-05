@@ -8,14 +8,14 @@ class YoloCOC:
         self.model = torch.hub.load('ultralytics/yolov5', 'custom', model_path)  # custom/local model
         self.model.eval()  # 设置为评估模式
 
-    def detect(self, image, range=screensz, size=1280, gray=False):
+    def detect(self, image, range=screensz, size=1280, gray=True):
         """识别所有非灰色元素
 
         Args:
             image (string/NumPy): image path or image
             range: 范围匹配
             size (int, optional): 图片尺寸. Defaults to 1280.
-            gray: 图片是否是灰度图 
+            gray: 是否匹配灰色元素
         Returns:
             map: 返回confidence最大的一个元素
         """
@@ -37,7 +37,7 @@ class YoloCOC:
                 continue
             if center_x > range[2] or center_y > range[3]:
                 continue    
-            if not gray:
+            if not gray: #过滤灰色元素
                 # 获取图像中心点像素颜色
                 b, g, r = self.get_pixel_color(image, center_x, center_y)
                 # 判断像素颜色是否为灰色

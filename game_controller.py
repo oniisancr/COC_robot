@@ -56,6 +56,11 @@ class GameController:
         self.shot_new = True
 
     def take_screenshot(self, grayscale=False):
+        """截屏
+
+        Args:
+            grayscale (bool, optional): 截取图片. Defaults to False.
+        """
         shot = adb_take_screenshot()
         if shot is None:
             return
@@ -65,9 +70,9 @@ class GameController:
             self.screenshot = cv2.cvtColor(self.screenshot, cv2.COLOR_RGB2GRAY)
             self.gray_screenshot = self.screenshot
     
-    def match_yolo(self, name, range=screensz,  grayscale=False):
+    def match_yolo(self, name, range=screensz,  grayscale=True):
         if self.shot_new:
-            self.take_screenshot(grayscale)
+            self.take_screenshot()  #只截取RGB 3通道图
         self.btn_map = self.yolo.detect(image=self.screenshot, range=range, gray=grayscale)
         if name in self.btn_map.keys():
             return True
@@ -136,25 +141,24 @@ class GameController:
             range=[525, 60, 1200, 500]
             time.sleep(2)
             # 捐兵
-            while self.match_yolo(op_set[1], range):
+            while self.match_yolo(op_set[1], range=range):
                 # 不存在可操作元素则退出捐兵
                 find_troops = set(self.btn_map.keys()).intersection(set(self.troops_name))
                 if not find_troops:
                     break
                 for troop in find_troops:
-                    if self.click_by_name(troop, range, True):
+                    if self.click_by_name(troop, range, use_btn_buf=True):
                         self.train_troops.append(troop)   #记录捐兵信息
                         logging.info("donate troops :" + troop)
                     break  #每次捐一个
             #捐法术
-            while self.match_yolo(op_set[1], range):
+            while self.match_yolo(op_set[1], range=range):
                 find_spells = set(self.btn_map.keys()).intersection(set(self.spells_name))
                 if not find_spells:
-                    time.sleep(1)
                     self.click_by_name("close_window", use_btn_buf=True)
                     break
                 for spell in find_spells:
-                    if self.click_by_name(spell, range, True):
+                    if self.click_by_name(spell, range, use_btn_buf=True):
                         self.train_spells.append(spell)   #记录捐兵信息
                         logging.info("donate spells :" + spell)
                     break
@@ -213,18 +217,17 @@ class GameController:
             return False
         center_x = loc[0]
         center_y = loc[1]
-        time.sleep(0.25+random.random()/2)
         adb_tap(center_x+random.randint(5,15), center_y+random.randint(5,15)) # 模拟鼠标点击匹配到的目标位置
-        time.sleep(0.25+random.random()/2)
+        time.sleep(0.5+random.random()/2)
         return True
 
-    def click_by_name(self, template_name, range = screensz, use_btn_buf = False):
+    def click_by_name(self, template_name, range = screensz, use_btn_buf = False, gray=True):
         """根据元素名进行点击
 
         Args:
             template_name (string): 需要查询的元素
             use_btn_buf (bool, optional): 是否使用缓存. Defaults to False. 不使用缓存
-
+            gray: 可以点击灰色
         Returns:
             bool: 是否成功点击
         """
@@ -236,7 +239,7 @@ class GameController:
         if self.click(self.btn_map.get(template_name)):
             return True
         else:
-            self.match_yolo(name=template_name, range=range)
+            self.match_yolo(name=template_name, range=range, grayscale=gray)
             return self.click(self.btn_map.get(template_name))
     
     def show_rectangle(self):
