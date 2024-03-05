@@ -29,7 +29,9 @@ def take_screenshot():
     if len(screenshot_np) != 0:
     # 使用OpenCV解码图像数据
         screenshot_cv = cv2.imdecode(screenshot_np, cv2.IMREAD_COLOR)
-        return screenshot_cv
+        # 将 BGR 格式转换为 RGB 格式
+        screenshot_rgb = cv2.cvtColor(screenshot_cv, cv2.COLOR_BGR2RGB)
+        return screenshot_rgb
     else:
         return None
 

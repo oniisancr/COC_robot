@@ -9,7 +9,7 @@ import os
 import subprocess
 import sys
 from transitions import Machine
-from adb import adb_command, adb_command_full
+from util.adb import adb_command, adb_command_full
 from game_controller import GameController
 import time
 import config
@@ -102,36 +102,15 @@ class GameScript:
         # 多次关闭，避免进入n级菜单
         for n in range(3):
             # 只使用一张截图判断
-            game_script.game_controller.take_screenshot(True)
+            game_script.game_controller.take_screenshot()
             game_script.game_controller.shot_new = False
             
-            # 关闭大窗口window  -（误触add、商店、布局、）
+            # 关闭窗口window
             if game_script.game_controller.click_by_name("close_window", False):
                 continue
-            # 关闭中窗口window  -（误触邮件、进攻、设置）
-            if game_script.game_controller.click_by_name("close_medium_window", False):
-                continue
-            # 关闭个人信息window
-            if game_script.game_controller.click_by_name("close_info_window", False):
-                continue
-            # 关闭批量升级window
-            if game_script.game_controller.click_by_name("close_update_window", False):
-                continue
-            # 误触建筑物
-            if game_script.game_controller._match_template(["target_info"]):
-                # 点击空白 2192、534
-                game_script.game_controller.click([2192,532])
-                continue
-            # 关闭超级兵界面
-            if game_script.game_controller.click_by_name("close_supertroop_window", False):
-                continue
-            # 关闭每周精选close_weekly_window
-            if game_script.game_controller.click_by_name("close_weekly_window", False):
-                continue
             # 长时间未操作
-            if game_script.game_controller.click_by_name("reload", False):
-                continue
-            
+            # if game_script.game_controller.click_by_name("reload", False):
+            #     continue
             game_script.game_controller.shot_new = True
     
     def execute_game_action(self):
@@ -168,7 +147,7 @@ class GameScript:
             self.last_donate = int(time.time())
             self.game_controller.donate_troops()
             offline_timer -= int(time.time()) - self.last_donate
-        if len(self.game_controller.heap_tarin_troops) > 0 or self.game_controller.queue_tarin_spells.qsize() > 0:
+        if len(self.game_controller.train_troops) > 0 or len(self.game_controller.train_spells) > 0:
             update_text(f"processing. {seconds_to_hms_string(offline_timer)} s remaining. task: train troops")
             self.last_train = int(time.time())
             self.game_controller.train()
@@ -202,48 +181,46 @@ if __name__ == "__main__":
                 continue
             to_init = True
             # 是否已经进入主界面
-            if game_script.game_controller._match_template(["add"]):
+            if game_script.game_controller.match_yolo("add"):
                 game_script.start_processing()
                 continue
             # 系统维护 等待5分钟重试
-            if game_script.game_controller._match_template(["reload_maintenance"]):
-                wait_wakeup_timer = 300
-                # 退出
-                adb_command("shell am force-stop com.tencent.tmgp.supercell.clashofclans")
-                continue
-            # 版本更新
-            if game_script.game_controller._match_template(["new_version"]):
-                game_script.game_controller.click_by_name("new_version_yes")
-                wait_wakeup_timer = 60
-                to_init = False
-                continue
-             # 版本更新安装，仅适用于雷电9模拟器
-            if game_script.game_controller.click_by_name("install"):
-                to_init = False
-                wait_wakeup_timer = 60
-                continue
-            # 打开新版本
-            if game_script.game_controller.click_by_name("open_new_version"):
-                to_init = False
-                continue
-            # 更新错误
-            if game_script.game_controller._match_template(["update_error"],confidence=0.965):
-                game_script.game_controller.click_by_name("exit") #退出
-                wait_wakeup_timer = 10
-                continue
-            # 被攻击中
-            if game_script.game_controller._match_template(["onatttacked"]):
-                continue
+            # if game_script.game_controller._match_template(["reload_maintenance"]):
+            #     wait_wakeup_timer = 300
+            #     # 退出
+            #     adb_command("shell am force-stop com.tencent.tmgp.supercell.clashofclans")
+            #     continue
+            # # 版本更新
+            # if game_script.game_controller._match_template(["new_version"]):
+            #     game_script.game_controller.click_by_name("new_version_yes")
+            #     wait_wakeup_timer = 60
+            #     to_init = False
+            #     continue
+            #  # 版本更新安装，仅适用于雷电9模拟器
+            # if game_script.game_controller.click_by_name("install"):
+            #     to_init = False
+            #     wait_wakeup_timer = 60
+            #     continue
+            # # 打开新版本
+            # if game_script.game_controller.click_by_name("open_new_version"):
+            #     to_init = False
+            #     continue
+            # # 更新错误
+            # if game_script.game_controller._match_template(["update_error"],confidence=0.965):
+            #     game_script.game_controller.click_by_name("exit") #退出
+            #     wait_wakeup_timer = 10
+            #     continue
+            # # 被攻击中
+            # if game_script.game_controller._match_template(["onatttacked"]):
+            #     continue
             # 被攻击中-->回营
             game_script.game_controller.click_by_name("back_home")
             # 关闭活动界面
             game_script.game_controller.click_by_name("close_window")
             # 关闭月度大活动结算、升级完成
             game_script.game_controller.click_by_name("confirm")
-            # 突袭奖励
-            game_script.game_controller.click_by_name("close_tuxi_window")
-            # 长时间未操作
-            game_script.game_controller.click_by_name("reload")
+            # # 长时间未操作
+            # game_script.game_controller.click_by_name("reload")
 
         elif game_script.state == 'processing':
             update_text(f"processing. {seconds_to_hms_string(offline_timer)} s remaining. task: idl")      
