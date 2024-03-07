@@ -137,32 +137,37 @@ class GameController:
         self.click(rightchat)
         self.click_by_name("down")
         op_set = ["donate","close_window"]
-        if self.click_by_name(op_set[0]):
-            range=[525, 60, 1200, 500]
-            time.sleep(2)
-            # 捐兵
-            while self.match_yolo(op_set[1], range=range):
-                # 不存在可操作元素则退出捐兵
-                find_troops = set(self.btn_map.keys()).intersection(set(self.troops_name))
-                if not find_troops:
-                    break
-                for troop in find_troops:
-                    if self.click_by_name(troop, range, use_btn_buf=True):
-                        self.train_troops.append(troop)   #记录捐兵信息
-                        logging.info("donate troops :" + troop)
-                    break  #每次捐一个
-            #捐法术
-            while self.match_yolo(op_set[1], range=range):
-                find_spells = set(self.btn_map.keys()).intersection(set(self.spells_name))
-                if not find_spells:
-                    self.click_by_name("close_window", use_btn_buf=True)
-                    break
-                for spell in find_spells:
-                    if self.click_by_name(spell, range, use_btn_buf=True):
-                        self.train_spells.append(spell)   #记录捐兵信息
-                        logging.info("donate spells :" + spell)
-                    break
-            time.sleep(2)
+        split_cnt = 3
+        i = 0
+        while i< split_cnt:
+            # 分区域检测
+            if self.click_by_name(op_set[0], range=[0,(720/split_cnt)*i,1280,(720/split_cnt)*(i+1)]):
+                range=[525, 60, 1200, 500]
+                time.sleep(2)
+                # 捐兵
+                while self.match_yolo(op_set[1], range=range):
+                    # 不存在可操作元素则退出捐兵
+                    find_troops = set(self.btn_map.keys()).intersection(set(self.troops_name))
+                    if not find_troops:
+                        break
+                    for troop in find_troops:
+                        if self.click_by_name(troop, range, use_btn_buf=True):
+                            self.train_troops.append(troop)   #记录捐兵信息
+                            logging.info("donate troops :" + troop)
+                        break  #每次捐一个
+                #捐法术
+                while self.match_yolo(op_set[1], range=range):
+                    find_spells = set(self.btn_map.keys()).intersection(set(self.spells_name))
+                    if not find_spells:
+                        self.click_by_name("close_window", use_btn_buf=True)
+                        break
+                    for spell in find_spells:
+                        if self.click_by_name(spell, range, use_btn_buf=True):
+                            self.train_spells.append(spell)   #记录捐兵信息
+                            logging.info("donate spells :" + spell)
+                        break
+                time.sleep(2)
+            i = i + 1
         self.click_by_name("close")
 
     def train(self):
