@@ -142,7 +142,7 @@ class GameController:
         while i< split_cnt:
             # 分区域检测
             if self.click_by_name(op_set[0], range=[0,(720/split_cnt)*i,1280,(720/split_cnt)*(i+1)]):
-                range=[525, 60, 1200, 500]
+                range=[525, 0, 1200, 590]
                 time.sleep(2)
                 # 捐兵
                 while self.match_yolo(op_set[1], range=range):
