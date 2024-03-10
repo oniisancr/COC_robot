@@ -31,8 +31,8 @@ class GameController:
         self.queue_tarin_spells = Queue()
         
         # 当前模型支持的兵种与法术
-        self.troops_name = ["qiqiu","leidian"]
-        self.spells_name = ["shandian","kuangbao","bingdong"]
+        self.troops_name = ["qiqiu","leilong","longbao","feilong"]
+        self.spells_name = ["bingdong","kuangbao"]
         
         # 用于缓存元素位置
         self.btn_map = {}
@@ -70,7 +70,17 @@ class GameController:
             self.screenshot = cv2.cvtColor(self.screenshot, cv2.COLOR_RGB2GRAY)
             self.gray_screenshot = self.screenshot
     
-    def match_yolo(self, name, range=screensz,  grayscale=True):
+    def match_yolo(self, name="", range=screensz,  grayscale=True):
+        """对象检测
+
+        Args:
+            name (str, optional): 对象元素. Defaults to "".
+            range (list, optional): 对象所处范围. Defaults to screensz.
+            grayscale (bool, optional): 是否检测灰色对象. Defaults to True.
+
+        Returns:
+            bool: 是否存在name对象
+        """
         if self.shot_new:
             self.take_screenshot()  #只截取RGB 3通道图
         self.btn_map = self.yolo.detect(image=self.screenshot, range=range, gray=grayscale)
@@ -145,7 +155,7 @@ class GameController:
                 range=[525, 0, 1200, 590]
                 time.sleep(2)
                 # 捐兵
-                while self.match_yolo(op_set[1], range=range):
+                while self.match_yolo(op_set[1], range=range, grayscale=False):
                     # 不存在可操作元素则退出捐兵
                     find_troops = set(self.btn_map.keys()).intersection(set(self.troops_name))
                     if not find_troops:
@@ -156,7 +166,7 @@ class GameController:
                             logging.info("donate troops :" + troop)
                         break  #每次捐一个
                 #捐法术
-                while self.match_yolo(op_set[1], range=range):
+                while self.match_yolo(op_set[1], range=range, grayscale=False):
                     find_spells = set(self.btn_map.keys()).intersection(set(self.spells_name))
                     if not find_spells:
                         self.click_by_name("close_window", use_btn_buf=True)
@@ -176,20 +186,27 @@ class GameController:
             is_Swaped = False   #只滑动一次
             if not self.click_by_name("train", use_btn_buf=True):
                 return
+            range = [0, 350, 1280, 720]
             if len(self.train_troops) > 0:
                 time.sleep(1 + random.random())
                 self.click(train_troops)
                 time.sleep(1 + random.random())
+                
                 while len(self.train_troops) > 0:
-                    item_name = self.train_troops.pop()
-                    if self.click_by_name(item_name):
-                        logging.info("train " + item_name )
-                        continue
+                    self.match_yolo(range=range, grayscale=False)
+                    find_troops = set(self.btn_map.keys()).intersection(set(self.train_troops))
+                    if find_troops:
+                        for troop in find_troops:
+                            if self.click_by_name(troop, range, use_btn_buf=True):
+                                logging.info("train troops :" + troop)
+                                self.train_troops.remove(troop)
+                            break  #每次训练一个
                     elif not is_Swaped:
                         is_Swaped = True
                         adb_swape(718, 505, 280, 508)
                         time.sleep(2.5)
                     else:
+                        self.train_troops.clear()
                         break
             if len(self.train_spells) > 0:
                 time.sleep(1 + random.random())
@@ -197,10 +214,8 @@ class GameController:
                 time.sleep(1 + random.random())
                 while len(self.train_spells) > 0:
                     item_name = self.train_spells.pop()
-                    if self.click_by_name(item_name):
+                    if self.click_by_name(item_name, range=range, gray=False):
                         logging.info("train " + item_name )
-                    else:
-                        break
             self.click_by_name("close_window", use_btn_buf=True)
 
     def get_light_items(self, search_images):
@@ -231,8 +246,9 @@ class GameController:
 
         Args:
             template_name (string): 需要查询的元素
+            range: 点击的元素所处范围
             use_btn_buf (bool, optional): 是否使用缓存. Defaults to False. 不使用缓存
-            gray: 可以点击灰色
+            gray: 是否可以点击灰色
         Returns:
             bool: 是否成功点击
         """
