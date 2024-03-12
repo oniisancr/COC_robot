@@ -31,8 +31,9 @@ class GameController:
         self.queue_tarin_spells = Queue()
         
         # 当前模型支持的兵种与法术
-        self.troops_name = ["qiqiu","leilong","longbao","feilong"]
-        self.spells_name = ["bingdong","kuangbao"]
+        self.troops_name = ["fashi","gebulin","yemanren","juren","qiqiu","gongjianshou","leilong","longbao","zhadanren",
+                            "xueguai","kuanggong","tianshi","feilong","longqishi","pika","kuanggong","wangling","nvwu","longqishi"]
+        self.spells_name = ["shandian","bingdong","kuangbao","zhiliao","tantiao","tiepi","shanghai","toushou","liequan"]
         
         # 用于缓存元素位置
         self.btn_map = {}
@@ -152,7 +153,7 @@ class GameController:
         while i< split_cnt:
             # 分区域检测
             if self.click_by_name(op_set[0], range=[0,(720/split_cnt)*i,1280,(720/split_cnt)*(i+1)]):
-                range=[525, 0, 1200, 590]
+                range=[500, 0, 1200, 500]
                 time.sleep(2)
                 # 捐兵
                 while self.match_yolo(op_set[1], range=range, grayscale=False):
@@ -199,7 +200,7 @@ class GameController:
                         for troop in find_troops:
                             if self.click_by_name(troop, range, use_btn_buf=True):
                                 logging.info("train troops :" + troop)
-                                self.train_troops.remove(troop)
+                            self.train_troops.remove(troop)
                             break  #每次训练一个
                     elif not is_Swaped:
                         is_Swaped = True
