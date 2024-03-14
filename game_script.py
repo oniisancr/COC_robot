@@ -40,21 +40,22 @@ def check_prepare():
     elif len(matches) == 1:
         config.device_name = matches[0]
     else:
-        print("please select devices: ")
-        for idx in range(len(matches)):
-            print(f"{idx} : {matches[idx]}")
-        print("please select devices: ")
-        select_id = input()
-        try:
-            select_id = int(select_id)
-            if select_id >= 0 and select_id < len(matches):
-                config.device_name = matches[select_id]
-            else:
+        if config.device_name == "":
+            print("please select devices: ")
+            for idx in range(len(matches)):
+                print(f"{idx} : {matches[idx]}")
+            print("please select devices: ")
+            select_id = input()
+            try:
+                select_id = int(select_id)
+                if select_id >= 0 and select_id < len(matches):
+                    config.device_name = matches[select_id]
+                else:
+                    print("Invalid input! Exiting...")
+                    exit(0)
+            except ValueError:
                 print("Invalid input! Exiting...")
                 exit(0)
-        except ValueError:
-            print("Invalid input! Exiting...")
-            exit(0)
 
 def update_text(text):
     sys.stdout.write("\r\033[K" + text)
