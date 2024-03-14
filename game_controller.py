@@ -32,8 +32,8 @@ class GameController:
         
         # 当前模型支持的兵种与法术
         self.troops_name = ["fashi","gebulin","yemanren","juren","qiqiu","gongjianshou","leilong","longbao","zhadanren",
-                            "xueguai","kuanggong","tianshi","feilong","longqishi","pika","kuanggong","wangling","nvwu","longqishi"]
-        self.spells_name = ["shandian","bingdong","kuangbao","zhiliao","tantiao","tiepi","shanghai","toushou","liequan"]
+                            "xueguai","kuanggong","tianshi","feilong","longqishi","pika","kuanggong","wangling","nvwu","longqishi","toushou","liequan"]
+        self.spells_name = ["shandian","bingdong","kuangbao","zhiliao","tantiao","tiepi","shanghai","bianfu","yinxing"]
         
         # 用于缓存元素位置
         self.btn_map = {}
