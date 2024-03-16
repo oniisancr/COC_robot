@@ -153,7 +153,7 @@ class GameController:
         while i< split_cnt:
             # 分区域检测
             if self.click_by_name(op_set[0], range=[0,(720/split_cnt)*i,1280,(720/split_cnt)*(i+1)]):
-                range=[500, 0, 1200, 500]
+                range=[500, 0, 1280, 500]
                 time.sleep(2)
                 # 捐兵
                 while self.match_yolo(op_set[1], range=range, grayscale=False):
@@ -238,7 +238,7 @@ class GameController:
             return False
         center_x = loc[0]
         center_y = loc[1]
-        adb_tap(center_x+random.randint(5,15), center_y+random.randint(5,15)) # 模拟鼠标点击匹配到的目标位置
+        adb_tap(center_x+random.randint(1,10), center_y+random.randint(1,10)) # 模拟鼠标点击匹配到的目标位置
         time.sleep(0.5+random.random()/2)
         return True
 
