@@ -145,8 +145,11 @@ class GameController:
     def donate_troops(self):
         self.click_by_name("open")
         time.sleep(2)
-        self.click(rightchat)
-        self.click_by_name("down")
+        if not self.match_yolo("yyz"):
+            self.click(rightchat)
+            self.click_by_name("down")
+        else:
+            self.click_by_name("down", use_btn_buf=True)
         op_set = ["donate","close_window"]
         split_cnt = 3
         i = 0
