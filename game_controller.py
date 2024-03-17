@@ -12,7 +12,7 @@ from queue import Queue
 import logging
 
 from util.adb import adb_swape, adb_take_screenshot, adb_tap
-from util.positon import rightchat, train_troops, train_spells, screensz
+from util.positon import rightchat, train_troops, train_spells, screensz, yyz_start
 
 from config import CLICK_LOG
 from util.yolo import YoloCOC
@@ -133,14 +133,15 @@ class GameController:
         self.click_by_name("tombstone")
 
     def yyzhan(self):
-        pass
-        # self.click_by_name("open")
-        # op_set = ["yyz", "yyz_start"]
-        # if self.click_by_name(op_set[0]):
-        #     self.click_by_name(op_set[1])
-        #     time.sleep(1)
-        #     self.click_by_name("close")
-
+        self.click_by_name("open")
+        time.sleep(2)
+        if not self.match_yolo("yyz"):
+            self.click(rightchat)
+        op_set = ["yyz"]
+        if self.click_by_name(op_set[0]):
+            self.click(yyz_start)
+            time.sleep(1)
+            self.click_by_name("close")
 
     def donate_troops(self):
         self.click_by_name("open")

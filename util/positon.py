@@ -9,3 +9,5 @@ train_spells = [587, 56]
 train_machine = [800, 53]
 quick_train = [1000, 58]
 gain_car_collect = [631, 554]
+
+yyz_start = [986, 420]
