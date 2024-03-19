@@ -12,7 +12,7 @@ from queue import Queue
 import logging
 
 from util.adb import adb_swape, adb_take_screenshot, adb_tap
-from util.positon import rightchat, train_troops, train_spells, screensz, yyz_start
+from util.positon import inner_chat, train_troops, train_spells, screensz, yyz_start, train_machine, open
 
 from config import CLICK_LOG
 from util.yolo import YoloCOC
@@ -22,8 +22,10 @@ class GameController:
     gray_screenshot = None
     troops_name = []
     spells_name = []
+    gc_name = []
     train_troops = []      #训练任务
     train_spells = []
+    train_gcs = []
     yolo = None
 
     def __init__(self):
@@ -34,7 +36,8 @@ class GameController:
         self.troops_name = ["fashi","gebulin","yemanren","juren","qiqiu","gongjianshou","leilong","longbao","zhadanren",
                             "xueguai","kuanggong","tianshi","feilong","longqishi","pika","kuanggong","wangling","nvwu","longqishi","toushou","liequan"]
         self.spells_name = ["shandian","bingdong","kuangbao","zhiliao","tantiao","tiepi","shanghai","bianfu","yinxing"]
-        
+        self.gc_name = ["gczhanche","gcqiqiu"]
+
         # 用于缓存元素位置
         self.btn_map = {}
         # 保存所有匹配的元素
@@ -133,10 +136,10 @@ class GameController:
         self.click_by_name("tombstone")
 
     def yyzhan(self):
-        self.click_by_name("open")
+        self.click(open)
         time.sleep(2)
         if not self.match_yolo("yyz"):
-            self.click(rightchat)
+            self.click(inner_chat)
         op_set = ["yyz"]
         if self.click_by_name(op_set[0]):
             self.click(yyz_start)
@@ -144,10 +147,10 @@ class GameController:
             self.click_by_name("close")
 
     def donate_troops(self):
-        self.click_by_name("open")
+        self.click(open)
         time.sleep(2)
         if not self.match_yolo("yyz"):
-            self.click(rightchat)
+            self.click(inner_chat)
             self.click_by_name("down")
         else:
             self.click_by_name("down", use_btn_buf=True)
@@ -159,35 +162,39 @@ class GameController:
             if self.click_by_name(op_set[0], range=[0,(720/split_cnt)*i,1280,(720/split_cnt)*(i+1)]):
                 range=[500, 0, 1280, 500]
                 time.sleep(2)
+                is_swipe =False
                 # 捐兵
                 while self.match_yolo(op_set[1], range=range, grayscale=False):
-                    # 不存在可操作元素则退出捐兵
                     find_troops = set(self.btn_map.keys()).intersection(set(self.troops_name))
-                    if not find_troops:
-                        break
-                    for troop in find_troops:
-                        if self.click_by_name(troop, range, use_btn_buf=True):
-                            self.train_troops.append(troop)   #记录捐兵信息
-                            logging.info("donate troops :" + troop)
-                        break  #每次捐一个
-                #捐法术
-                while self.match_yolo(op_set[1], range=range, grayscale=False):
                     find_spells = set(self.btn_map.keys()).intersection(set(self.spells_name))
-                    if not find_spells:
+                    find_gcs = set(self.btn_map.keys()).intersection(set(self.gc_name))
+                    if find_spells:
+                        if self.click_by_name(list(find_spells)[0], range, use_btn_buf=True):
+                            self.train_spells.append(list(find_spells)[0])   #记录捐兵信息
+                            logging.info("donate spells :" + list(find_spells)[0])
+                    if find_gcs:
+                        if self.click_by_name(list(find_gcs)[0], range, use_btn_buf=True):
+                            self.train_troops.append(list(find_gcs)[0])   #记录捐兵信息
+                            logging.info("donate gcs :" + list(find_gcs)[0])
+                    if find_troops:
+                        if self.click_by_name(list(find_troops)[0], range, use_btn_buf=True):
+                            self.train_troops.append(list(find_troops)[0])   #记录捐兵信息
+                            logging.info("donate troops :" + list(find_troops)[0])
+                    elif not is_swipe:
+                        adb_swape(1019,220,640,220)
+                        is_swipe = True
+                        time.sleep(2.5)
+                        continue
+                    if not find_troops and not find_spells and not find_gcs:
                         self.click_by_name("close_window", use_btn_buf=True)
                         break
-                    for spell in find_spells:
-                        if self.click_by_name(spell, range, use_btn_buf=True):
-                            self.train_spells.append(spell)   #记录捐兵信息
-                            logging.info("donate spells :" + spell)
-                        break
-                time.sleep(2)
+                time.sleep(1)
             i = i + 1
         self.click_by_name("close")
 
     def train(self):
         # 训练对应的捐兵
-        if len(self.train_troops) > 0 or len(self.train_spells) > 0:
+        if len(self.train_troops) > 0 or len(self.train_spells) > 0 or len(self.train_gcs):
             is_Swaped = False   #只滑动一次
             if not self.click_by_name("train", use_btn_buf=True):
                 return
@@ -219,6 +226,14 @@ class GameController:
                 time.sleep(1 + random.random())
                 while len(self.train_spells) > 0:
                     item_name = self.train_spells.pop()
+                    if self.click_by_name(item_name, range=range, gray=False):
+                        logging.info("train " + item_name )
+            if len(self.train_gcs) > 0:
+                time.sleep(1 + random.random())
+                self.click(train_machine)
+                time.sleep(1 + random.random())
+                while len(self.train_gcs) > 0:
+                    item_name = self.train_gcs.pop()
                     if self.click_by_name(item_name, range=range, gray=False):
                         logging.info("train " + item_name )
             self.click_by_name("close_window", use_btn_buf=True)

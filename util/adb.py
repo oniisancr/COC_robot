@@ -37,8 +37,8 @@ def adb_tap(x, y):
     adb_command = adb_command_full( f"shell input tap {x} {y}")
     subprocess.run(adb_command, shell=True)
 
-def adb_swape(x1, x2, y1, y2):
-    adb_command = adb_command_full( f"shell input swipe {x1} {x2} {y1} {y2} 200")
+def adb_swape(x1, y1, x2, y2):
+    adb_command = adb_command_full( f"shell input swipe {x1} {y1} {x2} {y2} 200")
     subprocess.run(adb_command, shell=True)
 
 def adb_command(cmd):
