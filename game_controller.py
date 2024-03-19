@@ -138,8 +138,7 @@ class GameController:
     def yyzhan(self):
         self.click(open)
         time.sleep(2)
-        if not self.match_yolo("yyz"):
-            self.click(inner_chat)
+        self.click(inner_chat)
         op_set = ["yyz"]
         if self.click_by_name(op_set[0]):
             self.click(yyz_start)
@@ -149,17 +148,14 @@ class GameController:
     def donate_troops(self):
         self.click(open)
         time.sleep(2)
-        if not self.match_yolo("yyz"):
-            self.click(inner_chat)
-            self.click_by_name("down")
-        else:
-            self.click_by_name("down", use_btn_buf=True)
+        self.click(inner_chat)
+        self.click_by_name("down")
         op_set = ["donate","close_window"]
         split_cnt = 3
         i = 0
         while i< split_cnt:
             # 分区域检测
-            if self.click_by_name(op_set[0], range=[0,(720/split_cnt)*i,1280,(720/split_cnt)*(i+1)]):
+            if self.click_by_name(op_set[0], range=[0,(650/split_cnt)*i,1280,(650/split_cnt)*(i+1)]):
                 range=[500, 0, 1280, 500]
                 time.sleep(2)
                 is_swipe =False
