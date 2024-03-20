@@ -129,11 +129,12 @@ class GameController:
         return flag
     
     def gain_base(self):
+        center_range = [ 118, 82, 1059, 571]
         # self.take_screenshot(False)
-        self.click_by_name("oil")
-        self.click_by_name("gold")
-        self.click_by_name("water")
-        self.click_by_name("tombstone")
+        self.click_by_name("oil", range=center_range)
+        self.click_by_name("gold", range=center_range)
+        self.click_by_name("water", range=center_range)
+        self.click_by_name("tombstone", range=center_range)
 
     def yyzhan(self):
         self.click(open)
