@@ -172,7 +172,7 @@ class GameController:
                             logging.info("donate spells :" + list(find_spells)[0])
                     if find_gcs:
                         if self.click_by_name(list(find_gcs)[0], range, use_btn_buf=True):
-                            self.train_troops.append(list(find_gcs)[0])   #记录捐兵信息
+                            self.train_gcs.append(list(find_gcs)[0])   #记录捐兵信息
                             logging.info("donate gcs :" + list(find_gcs)[0])
                     if find_troops:
                         if self.click_by_name(list(find_troops)[0], range, use_btn_buf=True):
