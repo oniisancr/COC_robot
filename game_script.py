@@ -102,17 +102,12 @@ class GameScript:
         '''
         # 多次关闭，避免进入n级菜单
         for n in range(3):
-            # 只使用一张截图判断
-            game_script.game_controller.take_screenshot()
-            game_script.game_controller.shot_new = False
-            
             # 关闭窗口window
             if game_script.game_controller.click_by_name("close_window"):
                 continue
             # 长时间未操作
             if game_script.game_controller.click_by_name("reload", use_cv=True):
                 continue
-            game_script.game_controller.shot_new = True
     
     def execute_game_action(self):
         global offline_timer
