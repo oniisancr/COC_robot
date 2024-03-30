@@ -18,6 +18,7 @@ from config import CLICK_LOG
 from util.yolo import YoloCOC
 
 class GameController:
+    screenshot = None
     light_screenshot = None
     gray_screenshot = None
     troops_name = []
@@ -30,7 +31,13 @@ class GameController:
 
     def __init__(self):
         self.template_images = {}
-        self.queue_tarin_spells = Queue()
+        folders = ['./images/btns']
+        for folder_path in folders:
+            # 获取文件夹中所有 .png 格式的文件名
+            png_files = [f for f in os.listdir(folder_path) if f.endswith('.png')]
+            for file in png_files:
+                name = os.path.splitext(file)[0]  # 去除文件后缀
+                self.template_images[name] = cv2.imread(os.path.join(folder_path, file))
         
         # 当前模型支持的兵种与法术
         self.troops_name = ["fashi","gebulin","yemanren","juren","qiqiu","gongjianshou","leilong","longbao","zhadanren",
@@ -40,21 +47,11 @@ class GameController:
 
         # 用于缓存元素位置
         self.btn_map = {}
-        # 保存所有匹配的元素
+        # 保存所有匹配的元素opencv
         self.match_list = { }
         
         # 加载yolo模型
         self.yolo = YoloCOC()
-
-
-        # input_string = "17,18,1,2,2,1"
-        # elements = input_string.split(',')
-        # for element in elements:
-        #     heapq.heappush(self.heap_tarin_troops, int(element))
-        # input_string = "spell1,spell3,spell4,spell4,spell3,spell2"
-        # elements = input_string.split(',')
-        # for element in elements:
-        #     self.queue_tarin_spells.put(element)
 
         # 是否重新获取屏幕图像
         self.shot_new = True
@@ -93,17 +90,19 @@ class GameController:
         else:
             return False
     
-    def _match_template(self, search_images, confidence = 0.96, grayscale=True):
+    def _match_template(self, search_images, confidence = 0.95, grayscale=True):
         """寻找匹配元素
-        已废弃!!Deprecated
         Args:
-            search_images (list): 需要寻找的元素
+            search_images (list): 需要寻找的元素名字
             confidence (float, optional): _description_. Defaults to 0.96.
             grayscale (bool, optional): 是否使用灰度. Defaults to True.
 
         Returns:
             bool: 是否存在一个匹配结果
         """
+        if self.screenshot is None:
+            print("warnning: no screenshot!")
+            return False
         if self.shot_new:
             self.take_screenshot(grayscale)
         self.match_list.clear()
@@ -115,7 +114,9 @@ class GameController:
                 cur_confidence = 0.9
             else:
                 cur_confidence = confidence
-            template_image = self.template_images[template_name]
+            template_image = self.template_images.get(template_name)
+            if template_image is None:
+                return False
             if grayscale:
                 template_image = cv2.cvtColor(self.template_images[template_name], cv2.COLOR_BGR2GRAY)
             res = cv2.matchTemplate(self.screenshot, template_image, cv2.TM_CCORR_NORMED)
@@ -258,7 +259,7 @@ class GameController:
         time.sleep(0.5+random.random()/2)
         return True
 
-    def click_by_name(self, template_name, range = screensz, use_btn_buf = False, gray=True):
+    def click_by_name(self, template_name, range = screensz, use_btn_buf = False, gray=True, use_cv=False):
         """根据元素名进行点击
 
         Args:
@@ -266,6 +267,7 @@ class GameController:
             range: 点击的元素所处范围
             use_btn_buf (bool, optional): 是否使用缓存. Defaults to False. 不使用缓存
             gray: 是否可以点击灰色
+            use_cv: 是否使用opencv来匹配需要点击的对象
         Returns:
             bool: 是否成功点击
         """
@@ -276,6 +278,9 @@ class GameController:
             self.btn_map[template_name] = None       
         if self.click(self.btn_map.get(template_name)):
             return True
+        elif use_cv:
+            if self._match_template([template_name]):
+                return self.click(list(self.match_list.values())[0])
         else:
             self.match_yolo(name=template_name, range=range, grayscale=gray)
             return self.click(self.btn_map.get(template_name))

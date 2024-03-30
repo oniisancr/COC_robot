@@ -110,8 +110,8 @@ class GameScript:
             if game_script.game_controller.click_by_name("close_window"):
                 continue
             # 长时间未操作
-            # if game_script.game_controller.click_by_name("reload", False):
-            #     continue
+            if game_script.game_controller.click_by_name("reload", use_cv=True):
+                continue
             game_script.game_controller.shot_new = True
     
     def execute_game_action(self):
@@ -220,8 +220,8 @@ if __name__ == "__main__":
             game_script.game_controller.click_by_name("close_window")
             # 关闭月度大活动结算、升级完成
             game_script.game_controller.click_by_name("confirm")
-            # # 长时间未操作
-            # game_script.game_controller.click_by_name("reload")
+            # 长时间未操作
+            game_script.game_controller.click_by_name("reload", use_cv=True)
 
         elif game_script.state == 'processing':
             update_text(f"processing. {seconds_to_hms_string(offline_timer)} s remaining. task: idl")      
