@@ -12,7 +12,7 @@ from queue import Queue
 import logging
 
 from util.adb import adb_swape, adb_take_screenshot, adb_tap
-from util.positon import inner_chat, train_troops, train_spells, screensz, yyz_start, train_machine, open
+from util.positon import inner_chat, train_troops, train_spells, screensz, yyz_start, train_machine, open, close
 
 from config import CLICK_LOG
 from util.yolo import YoloCOC
@@ -144,7 +144,7 @@ class GameController:
         if self.click_by_name(op_set[0]):
             self.click(yyz_start)
             time.sleep(1)
-            self.click_by_name("close")
+            self.click(close)
 
     def donate_troops(self):
         self.click(open)
@@ -187,7 +187,7 @@ class GameController:
                         break
                 time.sleep(1)
             i = i + 1
-        self.click_by_name("close")
+        self.click(close)
 
     def train(self):
         # 训练对应的捐兵

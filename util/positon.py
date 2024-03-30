@@ -12,3 +12,4 @@ gain_car_collect = [631, 554]
 
 yyz_start = [986, 420]
 open = [50, 322]
+close = [531, 441]
