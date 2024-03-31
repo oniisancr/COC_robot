@@ -178,6 +178,8 @@ if __name__ == "__main__":
             to_init = True
             # 是否已经进入主界面
             if game_script.game_controller.match_yolo("add"):
+                # 关闭新版本福利界面
+                game_script.game_controller.click_by_name("close_activity2", use_cv=True)
                 game_script.start_processing()
                 continue
             # 系统维护 等待5分钟重试
@@ -213,7 +215,6 @@ if __name__ == "__main__":
             game_script.game_controller.click_by_name("back_home")
             # 关闭活动界面
             game_script.game_controller.click_by_name("close_window")
-            game_script.game_controller.click_by_name("close_activity2", use_cv=True)
             # 关闭月度大活动结算、升级完成
             game_script.game_controller.click_by_name("confirm")
             # 长时间未操作

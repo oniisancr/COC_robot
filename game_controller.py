@@ -280,7 +280,9 @@ class GameController:
             return True
         elif use_cv:
             if self._match_template([template_name]):
-                return self.click(list(self.match_list.values())[0])
+                position = list(self.match_list.values())[0]
+                position = [position[0]+self.template_images.get(template_name).shape[1]/2, position[1]+self.template_images.get(template_name).shape[0]/2]
+                return self.click(position)
         else:
             self.match_yolo(name=template_name, range=range, grayscale=gray)
             return self.click(self.btn_map.get(template_name))
