@@ -213,6 +213,7 @@ if __name__ == "__main__":
             game_script.game_controller.click_by_name("back_home")
             # 关闭活动界面
             game_script.game_controller.click_by_name("close_window")
+            game_script.game_controller.click_by_name("close_activity2", use_cv=True)
             # 关闭月度大活动结算、升级完成
             game_script.game_controller.click_by_name("confirm")
             # 长时间未操作
