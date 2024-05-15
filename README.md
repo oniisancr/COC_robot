@@ -7,7 +7,8 @@ Supercell Clash of Clans Auto Robot； 部落冲突自动化脚本；
 
 - 使用：
     1. 首先，先下载[ADB](https://dl.google.com/android/repository/platform-tools_r34.0.5-windows.zip?hl=zh-cn)工具。
-    2. 安装python依赖。`pip install -r requirements.txt`
+    2. 安装python3.9.1. [windows 64位](https://www.python.org/ftp/python/3.9.1/python-3.9.1-amd64.exe)
+        - 安装python依赖。`pip install -r requirements.txt`
     3. config.py文件中，修改`adb_path`，为自己的adb.exe路径。
         - 可简单配置部分功能开关
     4. 启动安卓模拟器。如雷电模拟器

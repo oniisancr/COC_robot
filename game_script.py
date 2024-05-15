@@ -31,14 +31,14 @@ def check_prepare():
     result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
     print(result.stdout)
     # 解析输出
-    matches = re.findall(re.compile("(emulator-\d+)"), result.stdout)
+    matches = re.findall(re.compile("(\w+)\s+(\w+)"), result.stdout[24:])
 
     # 检查是否存在设备，需要开启开发者模式
     if len(matches) == 0:
         print("Pls confirm USB Debugging Mode has opened!")
         exit(0)
     elif len(matches) == 1:
-        config.device_name = matches[0]
+        config.device_name = matches[0][0]
     else:
         if config.device_name == "":
             print("please select devices: ")
@@ -49,7 +49,7 @@ def check_prepare():
             try:
                 select_id = int(select_id)
                 if select_id >= 0 and select_id < len(matches):
-                    config.device_name = matches[select_id]
+                    config.device_name = matches[select_id][0]
                 else:
                     print("Invalid input! Exiting...")
                     exit(0)

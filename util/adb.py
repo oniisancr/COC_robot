@@ -30,6 +30,9 @@ def adb_take_screenshot():
         print("failed to get screenshot!")
         return None
     screenshot_cv = cv2.imdecode(screenshot_np, cv2.IMREAD_COLOR)
+    if screenshot_cv is None:
+        print("failed to decode screenshot!")
+        return
     # 将 BGR 格式转换为 RGB 格式
     screenshot_rgb = cv2.cvtColor(screenshot_cv, cv2.COLOR_BGR2RGB)
     return screenshot_rgb

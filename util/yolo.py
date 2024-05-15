@@ -19,6 +19,8 @@ class YoloCOC:
         Returns:
             map: 返回confidence最大的一个元素
         """
+        if image is None:
+            return {}
         # 进行目标检测
         results = self.model.forward(image, size)
         names = self.model.names
