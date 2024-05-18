@@ -31,7 +31,7 @@ def check_prepare():
     result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
     print(result.stdout)
     # 解析输出
-    matches = re.findall(re.compile("(\w+)\s+(\w+)"), result.stdout[24:])
+    matches = re.findall(re.compile("(\w+|\w+-\w+)\s+(\w+)"), result.stdout[24:])
 
     # 检查是否存在设备，需要开启开发者模式
     if len(matches) == 0:
@@ -103,7 +103,7 @@ class GameScript:
         # 多次关闭，避免进入n级菜单
         for n in range(3):
             # 关闭窗口window
-            if game_script.game_controller.click_by_name("close_window"):
+            if game_script.game_controller.click_by_name("close"):
                 continue
             # 长时间未操作
             if game_script.game_controller.click_by_name("reload", use_cv=True):
@@ -122,7 +122,7 @@ class GameScript:
             self.game_controller.gain_base()
             offline_timer -= int(time.time()) - self.last_gain
 
-        if config.yyzhan and int(time.time()) - self.last_yyz > config.yyzhan_Interval: #控制频率
+        """ if config.yyzhan and int(time.time()) - self.last_yyz > config.yyzhan_Interval: #控制频率
             if self.start_task is False:
                 self.keep_clear_home()
                 self.start_task = True
@@ -131,7 +131,7 @@ class GameScript:
             update_text(f"processing. {seconds_to_hms_string(offline_timer)} s remaining. task: yyzhan")
             self.last_yyz = int(time.time())
             self.game_controller.yyzhan()
-            offline_timer -= int(time.time()) - self.last_yyz
+            offline_timer -= int(time.time()) - self.last_yyz """
         
         if config.donate_troops and int(time.time()) - self.last_donate > config.donate_Interval:
             if self.start_task is False:
@@ -214,7 +214,7 @@ if __name__ == "__main__":
             # 被攻击中-->回营
             game_script.game_controller.click_by_name("back_home")
             # 关闭活动界面
-            game_script.game_controller.click_by_name("close_window")
+            game_script.game_controller.click_by_name("close")
             # 关闭月度大活动结算、升级完成
             game_script.game_controller.click_by_name("confirm")
             # 长时间未操作

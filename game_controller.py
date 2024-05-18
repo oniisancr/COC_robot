@@ -12,7 +12,7 @@ from queue import Queue
 import logging
 
 from util.adb import adb_swape, adb_take_screenshot, adb_tap
-from util.positon import inner_chat, train_troops, train_spells, screensz, yyz_start, train_machine, open, close
+from util.positon import down, vm_size, inner_chat, train, train_troops, train_spells, screensz, yyz_start, train_machine, open, close_chat
 
 from config import CLICK_LOG
 from util.yolo import YoloCOC
@@ -39,7 +39,7 @@ class GameController:
                 name = os.path.splitext(file)[0]  # 去除文件后缀
                 self.template_images[name] = cv2.imread(os.path.join(folder_path, file))
         
-        # 当前模型支持的兵种与法术
+        # 兵种与法术
         self.troops_name = ["fashi","gebulin","yemanren","juren","qiqiu","gongjianshou","leilong","longbao","zhadanren",
                             "xueguai","kuanggong","tianshi","feilong","longqishi","pika","kuanggong","wangling","nvwu","longqishi","toushou","liequan"]
         self.spells_name = ["shandian","bingdong","kuangbao","zhiliao","tantiao","tiepi","shanghai","bianfu","yinxing"]
@@ -145,20 +145,20 @@ class GameController:
         if self.click_by_name(op_set[0]):
             self.click(yyz_start)
             time.sleep(1)
-            self.click(close)
+            self.click(close_chat)
 
     def donate_troops(self):
         self.click(open)
         time.sleep(2)
         self.click(inner_chat)
-        self.click_by_name("down")
-        op_set = ["donate","close_window"]
+        self.click(down)
+        op_set = ["donate","close"]
         split_cnt = 3
         i = 0
         while i< split_cnt:
             # 分区域检测
-            if self.click_by_name(op_set[0], range=[0,(650/split_cnt)*i,1280,(650/split_cnt)*(i+1)]):
-                range=[500, 0, 1280, 500]
+            if self.click_by_name(op_set[0], range=[0,(vm_size[0]/split_cnt)*i,vm_size[1],(vm_size[0]/split_cnt)*(i+1) - 0.1*vm_size[0]]):
+                range=[0.3*vm_size[1], 0, vm_size[1], 0.74*vm_size[0]]  #TODO 此range不一定适用所有分辨率 # 需要包括捐兵窗口，但不能包含聊天界面
                 time.sleep(2)
                 is_swipe =False
                 # 捐兵
@@ -178,25 +178,25 @@ class GameController:
                         if self.click_by_name(list(find_troops)[0], range, use_btn_buf=True):
                             self.train_troops.append(list(find_troops)[0])   #记录捐兵信息
                             logging.info("donate troops :" + list(find_troops)[0])
-                    elif not is_swipe:
-                        adb_swape(1019,220,640,220)
-                        is_swipe = True
-                        time.sleep(2.5)
-                        continue
+                    # elif not is_swipe:
+                    #     adb_swape(1019,220,640,220)
+                    #     is_swipe = True
+                    #     time.sleep(2.5)
+                    #     continue
                     if not find_troops and not find_spells and not find_gcs:
-                        self.click_by_name("close_window", use_btn_buf=True)
+                        self.click_by_name("close")
                         break
                 time.sleep(1)
             i = i + 1
-        self.click(close)
+        self.click(close_chat)
 
     def train(self):
         # 训练对应的捐兵
         if len(self.train_troops) > 0 or len(self.train_spells) > 0 or len(self.train_gcs):
             is_Swaped = False   #只滑动一次
-            if not self.click_by_name("train", use_btn_buf=True):
-                return
-            range = [0, 350, 1280, 720]
+            self.click(train)
+            time.sleep(1 + random.random())
+            range = [0, 0.5*vm_size[0], vm_size[1], vm_size[0]] #TODO 此range不一定适用所有分辨率 # 训练窗口的下半部分，用于限制识别范围
             if len(self.train_troops) > 0:
                 time.sleep(1 + random.random())
                 self.click(train_troops)
@@ -211,10 +211,10 @@ class GameController:
                                 logging.info("train troops :" + troop)
                             self.train_troops.remove(troop)
                             break  #每次训练一个
-                    elif not is_Swaped:
-                        is_Swaped = True
-                        adb_swape(718, 505, 280, 508)
-                        time.sleep(2.5)
+                    # elif not is_Swaped:
+                    #     is_Swaped = True
+                    #     adb_swape(718, 505, 280, 508)
+                    #     time.sleep(2.5)
                     else:
                         self.train_troops.clear()
                         break
@@ -234,7 +234,7 @@ class GameController:
                     item_name = self.train_gcs.pop()
                     if self.click_by_name(item_name, range=range, gray=False):
                         logging.info("train " + item_name )
-            self.click_by_name("close_window", use_btn_buf=True)
+            self.click_by_name("close", use_btn_buf=True)
 
     def get_light_items(self, search_images):
         light_items = {}
@@ -264,7 +264,7 @@ class GameController:
 
         Args:
             template_name (string): 需要查询的元素
-            range: 点击的元素所处范围
+            range: 点击的元素所处范围 [x1,y1,x2,y2] 左上角与右下角
             use_btn_buf (bool, optional): 是否使用缓存. Defaults to False. 不使用缓存
             gray: 是否可以点击灰色
             use_cv: 是否使用opencv来匹配需要点击的对象
