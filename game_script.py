@@ -182,6 +182,7 @@ if __name__ == "__main__":
                 game_script.game_controller.click_by_name("close_activity2", use_cv=True)
                 game_script.start_processing()
                 continue
+            game_script.game_controller.click([100,200])
             # 系统维护 等待5分钟重试
             # if game_script.game_controller._match_template(["reload_maintenance"]):
             #     wait_wakeup_timer = 300
