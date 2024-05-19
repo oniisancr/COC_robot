@@ -201,7 +201,7 @@ class GameController:
                 time.sleep(1 + random.random())
                 self.click(train_troops)
                 time.sleep(1 + random.random())
-                
+                try_more_troops = False
                 while len(self.train_troops) > 0:
                     self.match_yolo(range=range, grayscale=False)
                     find_troops = set(self.btn_map.keys()).intersection(set(self.train_troops))
@@ -217,7 +217,11 @@ class GameController:
                     #     time.sleep(2.5)
                     else:
                         self.train_troops.clear()
-                        break
+                        if try_more_troops:
+                            break
+                        else:
+                            self.train_troops = ["qiqiu","leilong"]*30
+                            try_more_troops = True
             if len(self.train_spells) > 0:
                 time.sleep(1 + random.random())
                 self.click(train_spells)
