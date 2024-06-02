@@ -119,14 +119,18 @@ class GameController:
                 return False
             if grayscale:
                 template_image = cv2.cvtColor(self.template_images[template_name], cv2.COLOR_BGR2GRAY)
-            res = cv2.matchTemplate(self.screenshot, template_image, cv2.TM_CCORR_NORMED)
-            # 找到最佳匹配位置
-            min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
-            if max_val > cur_confidence:
-                self.match_list[template_name] = max_loc
-                flag = True
-                if template_name in self.btn_map:
-                    self.btn_map[template_name] = max_loc
+            try:  
+                res = cv2.matchTemplate(self.screenshot, template_image, cv2.TM_CCORR_NORMED)
+                 # 找到最佳匹配位置
+                min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
+                if max_val > cur_confidence:
+                    self.match_list[template_name] = max_loc
+                    flag = True
+                    if template_name in self.btn_map:
+                        self.btn_map[template_name] = max_loc
+            except Exception as e:
+                print("PNG input buffer is incomplete")
+                return flag
         return flag
     
     def gain_base(self):
