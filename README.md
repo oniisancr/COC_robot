@@ -7,7 +7,7 @@ Supercell Clash of Clans Auto Robot； 部落冲突自动化脚本；
 
 - 使用(**无需root**)：
     1. 首先，先下载[ADB](https://dl.google.com/android/repository/platform-tools-latest-windows.zip)工具。
-    2. 安装python3.9.1. [windows 64位](https://www.python.org/ftp/python/3.9.1/python-3.9.1-amd64.exe)
+    2. 安装python3.9.1. [windows 64位](https://www.python.org/ftp/python/3.9.1/python-3.9.1-amd64.exe) or [windows 64位](https://filehippo.com/download_python/3.9.1/)
         - 安装python依赖。`pip install -r requirements.txt`
     3. config.py文件中，修改`adb_path`，为自己的adb.exe路径。
         - 可简单配置部分功能开关
@@ -37,3 +37,6 @@ Supercell Clash of Clans Auto Robot； 部落冲突自动化脚本；
 <center>
 <img src="images\yolo_valid_5.png" alt="测试图片" width="50%" />
 </center>
+
+因游戏经常变动，代码需要长期维护。
+但个人精力实在有限，欢迎感兴趣的友友提交修改，共同维护。
