@@ -22,6 +22,8 @@ logging.basicConfig(filename='coc_robot.log', level=logging.INFO, format='%(asct
 offline_timer = 0
 wait_wakeup_timer = 0
 
+is_MUMU = True #adb.exe connect 127.0.0.1:XXXXX  是否为MUMU模拟器
+
 def check_prepare():
     if not os.path.exists(config.adb_path):
         print("no adb.exe")
@@ -38,7 +40,10 @@ def check_prepare():
         print("Pls confirm USB Debugging Mode has opened!")
         exit(0)
     elif len(matches) == 1:
-        config.device_name = matches[0][0]
+        if is_MUMU:
+            config.device_name = "127.0.0.1:"+matches[0][0]
+        else:
+            config.device_name = matches[0][0]
     else:
         if config.device_name == "":
             print("please select devices: ")
@@ -49,7 +54,10 @@ def check_prepare():
             try:
                 select_id = int(select_id)
                 if select_id >= 0 and select_id < len(matches):
-                    config.device_name = matches[select_id][0]
+                    if is_MUMU:
+                        config.device_name = "127.0.0.1:"+matches[select_id][0]
+                    else:
+                        config.device_name = matches[select_id][0]
                 else:
                     print("Invalid input! Exiting...")
                     exit(0)
