@@ -242,5 +242,5 @@ if __name__ == "__main__":
                     game_script.processing2waiting()
                     sys.stdout.write("\n")
             game_script.execute_game_action()
-            offline_timer = offline_timer if offline_timer > 0 else 1
+            offline_timer = offline_timer if offline_timer > 0 else config.timestep
             #game_script.finish()
