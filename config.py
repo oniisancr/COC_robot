@@ -1,5 +1,6 @@
 adb_path = 'D:/platform-tools/adb.exe'
 device_name = ""
+timestep = 2 # 操作间隔s, 性能很差的机器，可以增大
 # 分辨率大小
 device_vm_size = 0 # 1:[720,1280] 0:[1080, 2400]
 

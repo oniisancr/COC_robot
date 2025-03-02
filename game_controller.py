@@ -13,7 +13,7 @@ import logging
 
 from util.adb import adb_swape, adb_take_screenshot, adb_tap
 from util.positon import down, vm_size, inner_chat, train, train_troops, train_spells, screensz, yyz_start, train_machine, open, close_chat
-
+import config
 from config import CLICK_LOG
 from util.yolo import YoloCOC
 
@@ -143,17 +143,17 @@ class GameController:
 
     def yyzhan(self):
         self.click(open)
-        time.sleep(2)
+        time.sleep(2*config.timestep)
         self.click(inner_chat)
         op_set = ["yyz"]
         if self.click_by_name(op_set[0]):
             self.click(yyz_start)
-            time.sleep(1)
+            time.sleep(config.timestep)
             self.click(close_chat)
 
     def donate_troops(self):
         self.click(open)
-        time.sleep(2)
+        time.sleep(2*config.timestep)
         self.click(inner_chat)
         self.click(down)
         op_set = ["donate","close"]
@@ -163,7 +163,7 @@ class GameController:
             # 分区域检测
             if self.click_by_name(op_set[0], range=[0,(vm_size[0]/split_cnt)*i,vm_size[1],(vm_size[0]/split_cnt)*(i+1) - 0.1*vm_size[0]]):
                 range=[0.3*vm_size[1], 0, vm_size[1], 0.74*vm_size[0]]  #TODO 此range不一定适用所有分辨率 # 需要包括捐兵窗口，但不能包含聊天界面
-                time.sleep(2)
+                time.sleep(2*config.timestep)
                 is_swipe =False
                 # 捐兵
                 while self.match_yolo(op_set[1], range=range, grayscale=False):
@@ -190,7 +190,7 @@ class GameController:
                     if not find_troops and not find_spells and not find_gcs:
                         self.click_by_name("close")
                         break
-                time.sleep(1)
+                time.sleep(config.timestep)
             i = i + 1
         self.click(close_chat)
 
@@ -199,12 +199,12 @@ class GameController:
         if len(self.train_troops) > 0 or len(self.train_spells) > 0 or len(self.train_gcs):
             is_Swaped = False   #只滑动一次
             self.click(train)
-            time.sleep(1 + random.random())
+            time.sleep(1*config.timestep + random.random())
             range = [0, 0.5*vm_size[0], vm_size[1], vm_size[0]] #TODO 此range不一定适用所有分辨率 # 训练窗口的下半部分，用于限制识别范围
             if len(self.train_troops) > 0:
-                time.sleep(1 + random.random())
+                time.sleep(1*config.timestep + random.random())
                 self.click(train_troops)
-                time.sleep(1 + random.random())
+                time.sleep(1*config.timestep + random.random())
                 try_more_troops = False
                 while len(self.train_troops) > 0:
                     self.match_yolo(range=range, grayscale=False)
@@ -227,17 +227,17 @@ class GameController:
                             self.train_troops = ["qiqiu","leilong"]*30
                             try_more_troops = True
             if len(self.train_spells) > 0:
-                time.sleep(1 + random.random())
+                time.sleep(1*config.timestep + random.random())
                 self.click(train_spells)
-                time.sleep(1 + random.random())
+                time.sleep(1*config.timestep + random.random())
                 while len(self.train_spells) > 0:
                     item_name = self.train_spells.pop()
                     if self.click_by_name(item_name, range=range, gray=False):
                         logging.info("train " + item_name )
             if len(self.train_gcs) > 0:
-                time.sleep(1 + random.random())
+                time.sleep(1*config.timestep + random.random())
                 self.click(train_machine)
-                time.sleep(1 + random.random())
+                time.sleep(1*config.timestep + random.random())
                 while len(self.train_gcs) > 0:
                     item_name = self.train_gcs.pop()
                     if self.click_by_name(item_name, range=range, gray=False):
@@ -264,7 +264,7 @@ class GameController:
         center_x = loc[0]
         center_y = loc[1]
         adb_tap(center_x+random.randint(1,10), center_y+random.randint(1,10)) # 模拟鼠标点击匹配到的目标位置
-        time.sleep(0.5+random.random()/2)
+        time.sleep(0.5*config.timestep+random.random()/2)
         return True
 
     def click_by_name(self, template_name, range = screensz, use_btn_buf = False, gray=True, use_cv=False):

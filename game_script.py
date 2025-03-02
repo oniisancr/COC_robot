@@ -166,19 +166,19 @@ if __name__ == "__main__":
             update_text(f"initializing... ")
             check_prepare()
             print(f"select device: {config.device_name}")
-            time.sleep(1)
+            time.sleep(config.timestep)
             # 回到主界面
             adb_command("shell input keyevent 3")
-            time.sleep(1)
+            time.sleep(config.timestep)
             # 启动游戏--腾讯
             adb_command("shell am start -n com.tencent.tmgp.supercell.clashofclans/com.supercell.titan.tencent.GameAppTencent")
             game_script.init()
             sys.stdout.write("\n")
         elif game_script.state == 'waiting':
             update_text(f"waiting... {seconds_to_hms_string(wait_wakeup_timer)} s remaining")
-            time.sleep(1)
+            time.sleep(config.timestep)
             if wait_wakeup_timer > 0:
-                wait_wakeup_timer -= 1
+                wait_wakeup_timer -= 1*config.timestep
                 if wait_wakeup_timer == 0 and to_init:
                     game_script.waiting2initializing()
                     sys.stdout.write("\n")
@@ -232,8 +232,8 @@ if __name__ == "__main__":
         elif game_script.state == 'processing':
             update_text(f"processing. {seconds_to_hms_string(offline_timer)} s remaining. task: idl")      
             if offline_timer > 0:
-                time.sleep(1)
-                offline_timer -= 1
+                time.sleep(config.timestep)
+                offline_timer -= 1*config.timestep
                 if offline_timer == 0:
                     # 退出
                     adb_command("shell am force-stop com.tencent.tmgp.supercell.clashofclans")
