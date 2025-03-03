@@ -21,6 +21,7 @@ logging.basicConfig(filename='coc_robot.log', level=logging.INFO, format='%(asct
 
 offline_timer = 0
 wait_wakeup_timer = 0
+over_wait_time = 0
 
 is_MUMU = True #adb.exe connect 127.0.0.1:XXXXX  是否为MUMU模拟器
 
@@ -179,7 +180,7 @@ if __name__ == "__main__":
             time.sleep(config.timestep)
             if wait_wakeup_timer > 0:
                 wait_wakeup_timer -= 1*config.timestep
-                if wait_wakeup_timer == 0 and to_init:
+                if wait_wakeup_timer <= 0 and to_init:
                     game_script.waiting2initializing()
                     sys.stdout.write("\n")
                 continue
@@ -228,6 +229,13 @@ if __name__ == "__main__":
             game_script.game_controller.click_by_name("confirm")
             # 长时间未操作
             game_script.game_controller.click_by_name("reload", use_cv=True)
+            over_wait_time += config.timestep
+            if over_wait_time > 600 :
+                # 超过10的分钟未进入主界面，则尝试新启动
+                over_wait_time = 0
+                # 退出游戏
+                adb_command("shell am force-stop com.tencent.tmgp.supercell.clashofclans")
+                game_script.waiting2initializing()
 
         elif game_script.state == 'processing':
             update_text(f"processing. {seconds_to_hms_string(offline_timer)} s remaining. task: idl")      
