@@ -17,7 +17,7 @@ Supercell Clash of Clans Auto Robot； 部落冲突自动化脚本；
             - 720x1280，dpi: 320
             - 1080*2400, dpi: 440 默认
         - 确保调试模式已开启
-    5. 执行脚本game_script.py
+    5. 执行脚本main.py
         - 存在多个设备时，选择指定设备(不建议运行多个)
 - 脚本理论上可以在**任何分辨率**机型下面运行。若要适配自定义分辨率，可按照下面流程操作：
     - 修改config.py 中 device_vm_size 为自定义值，如 device_vm_size = 2

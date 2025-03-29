@@ -23,8 +23,6 @@ offline_timer = 0
 wait_wakeup_timer = 0
 over_wait_time = 0
 
-is_MUMU = True #adb.exe connect 127.0.0.1:XXXXX  是否为MUMU模拟器
-
 def check_prepare():
     if not os.path.exists(config.adb_path):
         print("no adb.exe")
@@ -34,31 +32,29 @@ def check_prepare():
     result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
     print(result.stdout)
     # 解析输出
-    matches = re.findall(re.compile("(\w+|\w+-\w+)\s+(\w+)"), result.stdout[24:])
+    matches = re.findall(r"^([\d\.]+:\d+|[a-zA-Z0-9]+)\s+(\w+)$", result.stdout, re.MULTILINE)
+
+    # 过滤出状态为 'device' 的设备
+    devices = [match[0] for match in matches if match[1] == "device"]
 
     # 检查是否存在设备，需要开启开发者模式
-    if len(matches) == 0:
-        print("Pls confirm USB Debugging Mode has opened!")
+    if len(devices) == 0:
+        print("No devices found or devices are not in 'device' state. Please check USB Debugging Mode!")
         exit(0)
-    elif len(matches) == 1:
-        if is_MUMU:
-            config.device_name = "127.0.0.1:"+matches[0][0]
-        else:
-            config.device_name = matches[0][0]
+    elif len(devices) == 1:
+        config.device_name = devices[0]
+        print(f"Only one device found. Defaulting to: {config.device_name}")
     else:
         if config.device_name == "":
             print("please select devices: ")
-            for idx in range(len(matches)):
-                print(f"{idx} : {matches[idx]}")
+            for idx, device in enumerate(devices):
+                print(f"{idx} : {device}")
             print("please select devices: ")
             select_id = input()
             try:
                 select_id = int(select_id)
-                if select_id >= 0 and select_id < len(matches):
-                    if is_MUMU:
-                        config.device_name = "127.0.0.1:"+matches[select_id][0]
-                    else:
-                        config.device_name = matches[select_id][0]
+                if 0 <= select_id < len(devices):
+                    config.device_name = devices[select_id]
                 else:
                     print("Invalid input! Exiting...")
                     exit(0)
@@ -72,9 +68,10 @@ def update_text(text):
 
 def seconds_to_hms_string(seconds):
     td = timedelta(seconds=seconds)
+    days = td.days
     hours, remainder = divmod(td.seconds, 3600)
     minutes, seconds = divmod(remainder, 60)
-    return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+    return f"{days}d {hours:02d}:{minutes:02d}:{seconds:02d}"
 
 class GameScript:
     states = ['initializing', 'waiting', 'processing', 'finishing']
@@ -164,7 +161,7 @@ if __name__ == "__main__":
     game_script = GameScript()
     while game_script.state != 'finishing':
         if game_script.state == 'initializing':
-            update_text(f"initializing... ")
+            update_text(f"initializing... \n")
             check_prepare()
             print(f"select device: {config.device_name}")
             time.sleep(config.timestep)
