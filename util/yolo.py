@@ -1,9 +1,13 @@
+import os
 import torch
 import cv2
 from util.positon import screensz
 
 class YoloCOC:
-    def __init__(self, model_path='best.pt'):
+    def __init__(self, model_path=None):
+        # 如果未指定路径，使用默认路径
+        if model_path is None:
+            model_path = os.path.join(os.path.dirname(__file__), 'best.pt')
         # 加载模型
         self.model = torch.hub.load('ultralytics/yolov5', 'custom', model_path)  # custom/local model
         self.model.eval()  # 设置为评估模式

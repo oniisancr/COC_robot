@@ -184,8 +184,7 @@ if __name__ == "__main__":
             to_init = True
             # 是否已经进入主界面
             if game_script.game_controller.match_yolo("add"):
-                # 关闭新版本福利界面
-                game_script.game_controller.click_by_name("close_activity2", use_cv=True)
+                
                 game_script.start_processing()
                 continue
             game_script.game_controller.click([100,200])
@@ -226,6 +225,9 @@ if __name__ == "__main__":
             game_script.game_controller.click_by_name("confirm")
             # 长时间未操作
             game_script.game_controller.click_by_name("reload", use_cv=True)
+            # 关闭活动界面2
+            game_script.game_controller.click_by_name("close_activity2", use_cv=True)
+
             over_wait_time += config.timestep
             if over_wait_time > 600 :
                 # 超过10的分钟未进入主界面，则尝试新启动

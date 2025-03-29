@@ -13,7 +13,7 @@ sys.path.append(parent_dir)
 
 import cv2
 from game_controller import GameController
-from game_script import check_prepare
+from main import check_prepare
 
 def showRectangle(screenshot, loc, length, width):
     if len(loc) > 0:
@@ -35,7 +35,7 @@ gc.take_screenshot()
 #     print("未找到目标对象")
 
 
-gc._match_template(search_images=["close_activity","reload"],grayscale= True)
+gc._match_template(search_images=["close_activity2","reload"],grayscale= True)
 print("result: ")
 for k, v in gc.match_list.items():
     print(k)

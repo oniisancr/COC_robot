@@ -31,7 +31,7 @@ class GameController:
 
     def __init__(self):
         self.template_images = {}
-        folders = ['./images/btns']
+        folders = [os.path.join(os.path.dirname(__file__), 'images', 'btns')]
         for folder_path in folders:
             # 获取文件夹中所有 .png 格式的文件名
             png_files = [f for f in os.listdir(folder_path) if f.endswith('.png')]

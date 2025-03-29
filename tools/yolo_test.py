@@ -2,7 +2,7 @@ import torch
 from adb_test import take_screenshot
 
 # 加载YOLOv5模型ultralytics/yolov5
-model = torch.hub.load('ultralytics/yolov5', 'custom', 'best.pt')  # custom/local model
+model = torch.hub.load('ultralytics/yolov5', 'custom', '../util/best.pt')  # custom/local model
 names = model.names
 
 # img_path = '../coc_datasets/valid/yolo_valid_10.png'
