@@ -30,6 +30,8 @@ class YoloCOC:
         names = self.model.names
         best_map = {}
         conf = {}
+        boxes = {}  # 用于存储每个元素的检测框
+
         for i, det in enumerate(results.pred[0]):
             # 将张量转换为值
             det = det.tolist()
@@ -43,21 +45,62 @@ class YoloCOC:
                 continue
             if center_x > range[2] or center_y > range[3]:
                 continue    
-            if not gray: #过滤灰色元素
+            if not gray:  # 过滤灰色元素
                 # 获取图像中心点像素颜色
                 b, g, r = self.get_pixel_color(image, center_x, center_y)
                 # 判断像素颜色是否为灰色
                 if b == g == r and b != 255:
                     continue  # 如果颜色是灰色，则跳过当前元素，不存储到best_map中
-                elif name not in conf.keys() or confidence > conf[name]:
-                    conf[name] = confidence
-                    best_map[name] = [center_x, center_y]
-            else:
-                if name not in conf.keys() or confidence > conf[name]:
-                    conf[name] = confidence
-                    best_map[name] = [center_x, center_y]
+            if name not in conf.keys() or confidence > conf[name]:
+                conf[name] = confidence
+                best_map[name] = [center_x, center_y]
+                boxes[name] = [det[0], det[1], det[2], det[3]]  # 存储检测框
+
+        # 删除重合度超过一半的元素,保留置信度高的元素
+        to_remove = set()
+        for name1, box1 in boxes.items():
+            for name2, box2 in boxes.items():
+                if name1 != name2 and self.calculate_iou(box1, box2) > 0.5:
+                    # 如果两个检测框的 IoU 超过 0.5，移除置信度较低的元素
+                    if conf[name1] < conf[name2]:
+                        to_remove.add(name1)
+                    else:
+                        to_remove.add(name2)
+
+        for name in to_remove:
+            best_map.pop(name, None)
+
         return best_map
-    
+
+    def calculate_iou(self, box1, box2):
+        """计算两个检测框的 IoU（交并比）
+
+        Args:
+            box1 (list): 第一个检测框 [x1, y1, x2, y2]
+            box2 (list): 第二个检测框 [x1, y1, x2, y2]
+
+        Returns:
+            float: IoU 值
+        """
+        x1 = max(box1[0], box2[0])
+        y1 = max(box1[1], box2[1])
+        x2 = min(box1[2], box2[2])
+        y2 = min(box1[3], box2[3])
+
+        # 计算交集面积
+        inter_area = max(0, x2 - x1) * max(0, y2 - y1)
+
+        # 计算并集面积
+        box1_area = (box1[2] - box1[0]) * (box1[3] - box1[1])
+        box2_area = (box2[2] - box2[0]) * (box2[3] - box2[1])
+        union_area = box1_area + box2_area - inter_area
+
+        # 避免除以零
+        if union_area == 0:
+            return 0
+
+        return inter_area / union_area
+
     def get_pixel_color(self, image, x, y):
         """获取图像指定位置的像素颜色值
 
