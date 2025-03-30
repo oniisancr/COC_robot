@@ -1,5 +1,7 @@
-# COC_robot 
+# COC_robot
+
 Supercell Clash of Clans Auto Robot； 部落冲突自动化脚本；
+
 - 基本功能：
     1. 自动收集资源
     2. 自动捐兵（部分）
@@ -24,6 +26,21 @@ Supercell Clash of Clans Auto Robot； 部落冲突自动化脚本；
     - 在positon.py 中，新增一路分支，修改对应元素的位置。
         - 若仍然无法正常捐兵，可全局搜索 `#TODO`。依照注释，调整代码。
 
+## 模型重新训练
+
+- 按照[此说明](model\windows_v1.8.1\readme.md)，进行标注。
+- 参考`coc_train.ipynb`，进行模型训练和测试。
+
+```sh
+model
+├── dataset         #训练数据集
+├── windows_v1.8.1  #数据标注工具
+├── yolov5          #yolo模型代码
+├── coc_train.ipynb #训练教程
+├── data.yaml       #数据库描述
+└── hyp.game-ui.yaml    #超模型训练用超参
+```
+
 ## 注意事项
 
 - **！！当前模型仅支持的下列元素识别：**
@@ -31,7 +48,6 @@ Supercell Clash of Clans Auto Robot； 部落冲突自动化脚本；
     - 法术：狂暴、冰冻、闪电
 - 脚本可能出现错误点击的情况
     - 可使用tools路径下 `yolo_test.py` 脚本来测试当前界面识别到的元素。
-    - 若未正确匹配，请使用 `getdata.py`，请截图上传issuse。后续将加入训练集，完善识别结果。
 - 部分安卓手机无法可能无法连续通过adb获取手机界面。
     - 可刷入第三方rom，如魔趣等。
 <center>
