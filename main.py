@@ -187,7 +187,8 @@ if __name__ == "__main__":
                 
                 game_script.start_processing()
                 continue
-            game_script.game_controller.click([100,200])
+            # 关闭活动界面2
+            game_script.game_controller.click_by_name("close_activity2", use_cv=True)
             # 系统维护 等待5分钟重试
             # if game_script.game_controller._match_template(["reload_maintenance"]):
             #     wait_wakeup_timer = 300
@@ -225,9 +226,9 @@ if __name__ == "__main__":
             game_script.game_controller.click_by_name("confirm")
             # 长时间未操作
             game_script.game_controller.click_by_name("reload", use_cv=True)
-            # 关闭活动界面2
-            game_script.game_controller.click_by_name("close_activity2", use_cv=True)
-
+            
+            game_script.game_controller.click([100,200])
+            
             over_wait_time += config.timestep
             if over_wait_time > 600 :
                 # 超过10的分钟未进入主界面，则尝试新启动
