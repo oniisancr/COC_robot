@@ -1,58 +1,228 @@
+
 # COC_robot
 
-Supercell Clash of Clans Auto Robot； 部落冲突自动化脚本；
+> *⚠️ 警告：使用自动化脚本可能违反游戏条款，存在封号风险。本脚本仅供学习交流，请勿用于主账号！*  
+> *⚠️ Warning: Using automation scripts may violate game terms. Use at your own risk!*
 
-- 基本功能：
-    1. 自动收集资源
-    2. 自动捐兵（部分）
-    3. 捐兵后，自动训练
+[![Python Version](https://img.shields.io/badge/Python-3.9%2B-blue)](https://www.python.org/)
+[![License](https://img.shields.io/github/license/oniisancr/COC_robot)](LICENSE)
+[![Last Commit](https://img.shields.io/github/last-commit/oniisancr/COC_robot)](https://github.com/oniisancr/COC_robot/commits/main)
+[![Star History](https://api.star-history.com/svg?repos=oniisancr/COC_robot&type=Date)](https://star-history.com/#oniisancr/COC_robot)
 
-- 使用(**无需root**)：
-    1. 首先，先下载[ADB](https://dl.google.com/android/repository/platform-tools-latest-windows.zip)工具。
-    2. 安装python3.9.1. [windows 64位](https://www.python.org/ftp/python/3.9.1/python-3.9.1-amd64.exe) or [windows 64位](https://filehippo.com/download_python/3.9.1/)
-        - 安装python依赖。`pip install -r requirements.txt`
-    3. config.py文件中，修改`adb_path`，为自己的adb.exe路径。
-        - 可简单配置部分功能开关
-        - 分辨率设置参数 device_vm_size
-    4. 启动安卓模拟器。如雷电模拟器
-        - 设置分辨率：
-            - 720x1280，dpi: 320
-            - 1080*2400, dpi: 440 默认
-        - 确保调试模式已开启
-    5. 执行脚本main.py
-        - 存在多个设备时，选择指定设备(不建议运行多个)
-- 脚本理论上可以在**任何分辨率**机型下面运行。若要适配自定义分辨率，可按照下面流程操作：
-    - 修改config.py 中 device_vm_size 为自定义值，如 device_vm_size = 2
-    - 在positon.py 中，新增一路分支，修改对应元素的位置。
-        - 若仍然无法正常捐兵，可全局搜索 `#TODO`。依照注释，调整代码。
+<div align="center">
+  <a href="README-en.md"><kbd>🇺🇸 English</kbd></a> |
+  <strong><kbd>🇨🇳 中文</kbd></strong>
+</div>
 
-## 模型重新训练
+---
 
-- 按照[此说明](model\windows_v1.8.1\readme.md)，进行标注。
-- 参考`coc_train.ipynb`，进行模型训练和测试。
+## 目录
 
-```sh
-model
-├── dataset         #训练数据集
-├── windows_v1.8.1  #数据标注工具
-├── yolov5          #yolo模型代码
-├── coc_train.ipynb #训练教程
-├── data.yaml       #数据库描述
-└── hyp.game-ui.yaml    #超模型训练用超参
+- [COC\_robot](#coc_robot)
+  - [目录](#目录)
+  - [功能](#功能)
+  - [兼容性](#兼容性)
+  - [使用方法](#使用方法)
+    - [前置条件](#前置条件)
+    - [快速开始](#快速开始)
+    - [自定义分辨率](#自定义分辨率)
+  - [模型训练](#模型训练)
+    - [数据集准备](#数据集准备)
+    - [训练命令](#训练命令)
+  - [注意事项](#注意事项)
+  - [常见问题](#常见问题)
+  - [贡献指南](#贡献指南)
+  - [致谢](#致谢)
+
+---
+
+## 功能
+
+✅ **自动资源收集**  
+
+- 支持金矿、圣水收集器的定时收取  
+- 自动识别仓库容量（通过 YOLOv5 模型）
+
+⚔️ **自动捐兵（Beta）**  
+
+- 支持雷龙、气球兵捐赠  
+- 捐赠后自动训练部队（需配置兵营位置）
+
+🔧 **自定义配置**  
+
+- 多分辨率适配（1080p/720p/自定义）  
+- 功能模块开关控制
+
+---
+
+## 兼容性
+
+| 组件           | 版本要求               |
+|----------------|-----------------------|
+| 部落冲突       | v14.xxx (2023-10-01)  |
+| 雷电模拟器     | 9.0.xx 或更高         |
+| 操作系统       | Windows 10/11         |
+| Python         | 3.9.1+                |
+
+---
+
+## 使用方法
+
+### 前置条件
+
+1. **配置 ADB**  
+   - 下载 [ADB 工具包](https://dl.google.com/android/repository/platform-tools-latest-windows.zip)  
+   - 解压后添加至系统 PATH（[教程](https://www.xda-developers.com/install-adb-windows-macos-linux/)）
+
+2. **安装 Python 依赖**  
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+### 快速开始
+
+1. **编辑配置文件**  
+
+   ```python
+   # config.py
+   adb_path = "C:/platform-tools/adb.exe"  # ← 修改为你的路径
+   device_vm_size = 0  # 1080x2400（默认）
+   enable_donate = True
+   ```
+
+2. **启动模拟器**  
+   - 分辨率设置：  
+     - **推荐**：1080x2400 (DPI 440)  
+     - **备用**：720x1280 (DPI 320)  
+   - 启用 USB 调试模式
+
+3. **运行脚本**  
+
+   ```bash
+   python main.py
+   ```
+
+### 自定义分辨率
+
+1. 在 `position.py` 中添加新分辨率配置：  
+
+   ```python
+   elif device_vm_size == 2:  # 自定义分辨率
+       COLLECTOR_POS = (x1, y1, x2, y2)
+   ```
+
+2. 提交 Pull Request 帮助完善适配！
+
+---
+
+## 模型训练
+
+### 数据集准备
+
+- [数据标注说明](model\windows_v1.8.1\readme.md)
+
+```bash
+model/
+├── dataset/          # 标注数据集
+│   ├── images/       # 截图样本
+│   └── labels/       # YOLO 格式标注
+└── yolov5/           # 训练代码
 ```
+
+### 训练命令
+
+```bash
+cd model/yolov5
+python train.py \
+    --imgsz 640 \
+    --batch-size 1\
+    --epochs 1000 \
+    --data ../data.yaml\
+    --weights ../../util/best.pt\
+    --patience 0 \
+    --hyp ../hyp.game-ui.yaml
+
+```
+
+[查看完整训练指南](model/coc_train.ipynb)
+
+---
 
 ## 注意事项
 
-- **！！当前模型仅支持的下列元素识别：**
-    - 兵种：气球、雷龙
-    - 法术：狂暴、冰冻、闪电
-- 脚本可能出现错误点击的情况
-    - 可使用tools路径下 `yolo_test.py` 脚本来测试当前界面识别到的元素。
-- 部分安卓手机无法可能无法连续通过adb获取手机界面。
-    - 可刷入第三方rom，如魔趣等。
-<center>
-<img src="images\yolo_valid_5.png" alt="测试图片" width="50%" />
-</center>
+1. **支持识别的元素**  
 
-因游戏经常变动，代码需要长期维护。
-但个人精力实在有限，欢迎感兴趣的友友提交修改，共同维护。
+   | 类型   | 名称                     |
+   |--------|--------------------------|
+   | 部队   | 雷龙、气球兵、巨人       |
+   | 法术   | 狂暴、冰冻、闪电         |
+
+2. **调试工具**  
+   - 使用 `tools/yolo_test.py` 实时测试界面识别：  
+
+     ```bash
+     python tools/yolo_test.py
+     ```
+
+---
+
+## 常见问题
+
+<details>
+<summary>🔧 ADB 连接失败怎么办？</summary>
+
+1. 检查模拟器的 USB 调试模式是否开启  
+2. 重启 ADB 服务：
+
+   ```bash
+   adb kill-server && adb start-server
+   ```
+
+3. 尝试更换 USB 端口或模拟器版本
+
+</details>
+
+<details>
+<summary>🖱️ 脚本点击位置不准确？</summary>
+
+1. 确保模拟器分辨率为1080x2400
+
+2. 根据错误地方调整 `position.py` 中的坐标
+
+</details>
+
+---
+
+## 贡献指南
+
+1. Fork 本仓库并创建分支：
+
+   ```bash
+   git checkout -b feature/your-idea
+   ```
+
+2. 遵循 [Google Python 代码规范](https://google.github.io/styleguide/pyguide.html)  
+3. 提交清晰的 commit 信息：
+
+   ```bash
+   git commit -m "feat: 新增xxx功能"
+   ```
+
+4. 发起 Pull Request 并描述改进内容
+
+    ```plaintext
+    流程图解
+
+    [feature/your-idea] --(合并)--> [develop] --(推送)--> [origin/develop]
+    ```
+
+---
+
+## 致谢
+
+- 目标检测框架 [YOLOv5](https://github.com/ultralytics/yolov5)  
+
+---
+
+<sub>🐛 [提交 Issue](https://github.com/oniisancr/COC_robot/issues)</sub>
