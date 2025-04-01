@@ -61,11 +61,9 @@ class YoloCOC:
         for name1, box1 in boxes.items():
             for name2, box2 in boxes.items():
                 if name1 != name2 and self.calculate_iou(box1, box2) > 0.5:
-                    # 如果两个检测框的 IoU 超过 0.5，移除置信度较低的元素
-                    if conf[name1] < conf[name2]:
-                        to_remove.add(name1)
-                    else:
-                        to_remove.add(name2)
+                    # 如果两个检测框的 IoU 超过 0.5，全部舍弃，避免误操作
+                    to_remove.add(name1)
+                    to_remove.add(name2)
 
         for name in to_remove:
             best_map.pop(name, None)
