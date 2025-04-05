@@ -31,7 +31,6 @@
     - [训练命令](#训练命令)
   - [注意事项](#注意事项)
   - [常见问题](#常见问题)
-  - [贡献指南](#贡献指南)
   - [致谢](#致谢)
 
 ---
@@ -191,31 +190,6 @@ python train.py \
 2. 根据错误地方调整 `position.py` 中的坐标
 
 </details>
-
----
-
-## 贡献指南
-
-1. Fork 本仓库并创建分支：
-
-   ```bash
-   git checkout -b feature/your-idea
-   ```
-
-2. 遵循 [Google Python 代码规范](https://google.github.io/styleguide/pyguide.html)  
-3. 提交清晰的 commit 信息：
-
-   ```bash
-   git commit -m "feat: 新增xxx功能"
-   ```
-
-4. 发起 Pull Request 并描述改进内容
-
-    ```plaintext
-    流程图解
-
-    [feature/your-idea] --(合并)--> [develop] --(推送)--> [origin/develop]
-    ```
 
 ---
 

@@ -29,7 +29,6 @@
     - [Training Command](#training-command)
   - [Notes](#notes)
   - [FAQ](#faq)
-  - [Contributing](#contributing)
   - [Acknowledgements](#acknowledgements)
 
 ---
@@ -187,31 +186,6 @@ python train.py \
 2. Adjust coordinates in `position.py`
 
 </details>
-
----
-
-## Contributing
-
-1. Fork the repo and create a branch:
-
-   ```bash
-   git checkout -b feature/your-idea
-   ```
-
-2. Follow [Google Python Style Guide](https://google.github.io/styleguide/pyguide.html)  
-3. Commit changes with clear messages:
-
-   ```bash
-   git commit -m "feat: add xxx feature"
-   ```
-
-4. Open a Pull Request with detailed description
-
-```plaintext
-Workflow Diagram
-
-[feature/your-idea] --(merge)--> [develop] --(push)--> [origin/develop]
-```
 
 ---
 
