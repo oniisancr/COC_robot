@@ -61,9 +61,11 @@ class YoloCOC:
         for name1, box1 in boxes.items():
             for name2, box2 in boxes.items():
                 if name1 != name2 and self.calculate_iou(box1, box2) > 0.5:
-                    # 如果两个检测框的 IoU 超过 0.5，全部舍弃，避免误操作
-                    to_remove.add(name1)
-                    to_remove.add(name2)
+                    # 如果两个检测框的 IoU 超过 0.5
+                    if name1 == "donate": #避免误点击play replay
+                        to_remove.add(name1)
+                    if name2 == "donate":
+                        to_remove.add(name2)
 
         for name in to_remove:
             best_map.pop(name, None)
