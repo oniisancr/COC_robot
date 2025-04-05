@@ -119,7 +119,7 @@
 
 ### 数据集准备
 
-- [数据标注说明](model\windows_v1.8.1\readme.md)
+- [数据标注说明](model/windows_v1.8.1/readme.md)
 
 ```bash
 model/
